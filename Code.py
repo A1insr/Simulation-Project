@@ -70,6 +70,10 @@ def uniform(a, b):
     r = random.random()
     return a + (b - a) * r
 
+def triangular(LB: float, M: float, UB: float) -> float:
+    r = np.random.triangular(left=LB, mode=M, right=UB)
+    return r
+
 
 def fel_maker(future_event_list, event_type, clock, patient=None):  # Why?
 
@@ -82,8 +86,28 @@ def fel_maker(future_event_list, event_type, clock, patient=None):  # Why?
             event_time = clock + exponential(1 / 4)
 
     elif event_type == 'Laboratory Arrival':
-        event_time = clock +
-        
+        if data['Patients'][patient]['Patient Type'] == 'Normal':
+            event_time = clock + 1
+        else:
+            event_time = clock + (10 / 60)
+
+    elif event_type == 'Laboratory Departure':
+        event_time = clock + uniform((28 / 60), (32 / 60))
+
+    elif event_type == 'Operation Arrival':
+        if data['Patients'][patient]['Patient Type'] == 'Normal':
+            event_time = clock + 48
+        else:
+            event_time = clock + triangular((5 / 60), (75 / 60), (100 / 60))
+
+    elif event_type == 'Operation Departure':
+        if data['Patients'][patient]['Surgery Type'] == 'Simple':
+            event_time = clock + (10 / 60) + random.normal(loc=(30.22 / 60), scale=(math.sqrt(4.96) / 60))
+        elif data['Patients'][patient]['Surgery Type'] == 'Medium':
+            event_time = clock + (10 / 60) + random.normal(loc=(74.54 / 60), scale=(math.sqrt(9.53) / 60))
+        else:
+            event_time = clock + (10 / 60) + random.normal(loc=(242.03 / 60), scale=(math.sqrt(63.27) / 60))
+
     elif event_type == 'End of Service':
         event_time = clock + uniform(10, 25)
 
