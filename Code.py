@@ -48,7 +48,16 @@ def starting_state():
     # data['Queue Patient'] = dict()  # Customer: Arrival Time, used to find first customer in queue
     #
     # # Cumulative Stats
+    
+    data['Last Time Emergency Queue Length Changed'] = 0 # Needed to caculate probability of a full emergency queue
+    data['Full Emergency Queue Duration'] = 0
+    data['Patients With Complex Surgery'] = 0
+    data['Number of Repeated Operations For Patients With Complex Operation'] = 0
+    data['Number of Immediately Addmited Emergency Patients'] = 0
+    data['Emergency Patients'] = 0
     # data['Cumulative Stats'] = dict()
+    data['Cumulative Stats']['Total Patients'] = 0
+    data['Cumulative Stats']['System Waiting Time'] = 0
     # data['Cumulative Stats']['Server Busy Time'] = 0
     # data['Cumulative Stats']['Queue Waiting Time'] = 0
     # data['Cumulative Stats']['Area Under Queue Length Curve'] = 0
