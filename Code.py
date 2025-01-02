@@ -48,12 +48,66 @@ def starting_state():
     # data['Queue Patient'] = dict()  # Customer: Arrival Time, used to find first customer in queue
     #
     # # Cumulative Stats
-    # data['Cumulative Stats'] = dict()
-    # data['Cumulative Stats']['Server Busy Time'] = 0
-    # data['Cumulative Stats']['Queue Waiting Time'] = 0
-    # data['Cumulative Stats']['Area Under Queue Length Curve'] = 0
-    # data['Cumulative Stats']['Service Starters'] = 0
 
+    data['Last Time Emergency Queue Length Changed'] = 0 # Needed to caculate probability of a full emergency queue
+    data['Last Time Preoperative Queue Length Changed'] = 0
+    data['Last Time Laboratory Normal Queue Length Changed'] = 0
+    data['Last Time Laboratory Urgent Queue Length Changed'] = 0
+    data['Last Time Operation Normal Queue Length Changed'] = 0
+    data['Last Time Operation Urgent Queue Length Changed'] = 0
+    data['Last Time General Ward Queue Length Changed'] = 0
+    data['Last Time ICU Queue Length Changed'] = 0
+    data['Last Time CCU Queue Length Changed'] = 0
+
+        
+    data['Cumulative Stats'] = dict()
+    data['Cumulative Stats']['Total Patients'] = 0
+    data['Cumulative Stats']['Emergency Patients'] = 0
+    data['Cumulative Stats']['System Waiting Time'] = 0
+    data['Cumulative Stats']['Full Emergency Queue Duration'] = 0
+    
+    data['Cumulative Stats']['Area Under Emergency Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under Preoperative Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under Laboratory Normal Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under Laboratory Urgent Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under Operation Normal Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under Operation Urgent Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under General Ward Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under ICU Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under CCU Queue Length Curve'] = 0
+
+    data['Cumulative Stats']['Emergency Queue Waiting Time'] = 0 
+    data['Cumulative Stats']['Preoperative Queue Waiting Time'] = 0
+    data['Cumulative Stats']['Laboratory Normal Queue Waiting Time'] = 0
+    data['Cumulative Stats']['Laboratory Urgent Queue Waiting Time'] = 0
+    data['Cumulative Stats']['Operation Normal Queue Waiting Time'] = 0
+    data['Cumulative Stats']['Operation Urgent Queue Waiting Time'] = 0
+    data['Cumulative Stats']['General Ward Queue Waiting Time'] = 0
+    data['Cumulative Stats']['ICU Queue Waiting Time'] = 0
+    data['Cumulative Stats']['CCU Queue Waiting Time'] = 0
+
+    data['Cumulative Stats']['Emergency Service Starters'] = 0
+    data['Cumulative Stats']['Preoperative Service Starters'] = 0
+    data['Cumulative Stats']['Laboratory Service Starters'] = 0
+    data['Cumulative Stats']['Operation Service Starters'] = 0
+    data['Cumulative Stats']['General Ward Service Starters'] = 0
+    data['Cumulative Stats']['ICU Service Starters'] = 0
+    data['Cumulative Stats']['CCU Service Starters'] = 0
+
+    data['Cumulative Stats']['Emergency Server Busy Time'] = 0
+    data['Cumulative Stats']['Preoperative Server Busy Time'] = 0
+    data['Cumulative Stats']['Laboratory Server Busy Time'] = 0
+    data['Cumulative Stats']['Operation Server Busy Time'] = 0
+    data['Cumulative Stats']['General Ward Server Busy Time'] = 0
+    data['Cumulative Stats']['ICU Server Busy Time'] = 0
+    data['Cumulative Stats']['CCU Server Busy Time'] = 0
+
+    data['Cumulative Stats']['Number of Repeated Operations For Patients With Complex Operation'] = 0
+
+    data['Cumulative Stats']['Number of Immediately Addmited Emergency Patients'] = 0
+
+    data['Cumulative Stats']['Patients With Complex Surgery'] = 0
+    
     # Starting FEL
     future_event_list = list()
     future_event_list.append({'Event Type': 'Arrival', 'Event Time': 0, 'Patient': 'P1'})
