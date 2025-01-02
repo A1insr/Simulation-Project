@@ -60,7 +60,7 @@ def starting_state():
         
     data['Cumulative Stats'] = dict()
     data['Cumulative Stats']['Total Patients'] = 0
-    
+    data['Cumulative Stats']['Emergency Patients'] = 0
     data['Cumulative Stats']['System Waiting Time'] = 0
     data['Cumulative Stats']['Full Emergency Queue Duration'] = 0
     
@@ -103,7 +103,6 @@ def starting_state():
     data['Cumulative Stats']['Number of Repeated Operations For Patients With Complex Operation'] = 0
 
     data['Cumulative Stats']['Number of Immediately Addmited Emergency Patients'] = 0
-    data['Cumulative Stats']['Emergency Patients'] = 0
 
     data['Cumulative Stats']['Patients With Complex Surgery'] = 0
     
