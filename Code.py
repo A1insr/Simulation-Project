@@ -670,13 +670,34 @@ def simulation(simulation_time):
         # print(data)
         current_event = sorted_fel[0]  # find imminent event
         clock = current_event['Event Time']  # advance time
-        customer = current_event['Customer']  # find the customer of that event
+        patient = current_event['Patient']  # find the patient of that event
         if clock < simulation_time:  # if current_event['Event Type'] != 'End of Simulation'  (Same)
             if current_event['Event Type'] == 'Arrival':
-                arrival(future_event_list, state, clock, data, customer)
+                arrival(future_event_list, state, clock, data, patient)
+
+            elif current_event['Event Type'] == 'Laboratory Arrival':
+                laboratory_arrival(future_event_list, state, clock, data, patient)
+
+            elif current_event['Event Type'] == 'Laboratory Departure':
+                laboratory_departure(future_event_list, state, clock, data, patient)
+
+            elif current_event['Event Type'] == 'Operation Arrival':
+                operation_arrival(future_event_list, state, clock, data, patient)
+
+            elif current_event['Event Type'] == 'Operation Departure':
+                operation_departure(future_event_list, state, clock, data, patient)
+
+            elif current_event['Event Type'] == 'Condition Deterioration':
+                condition_deterioration(future_event_list, state, clock, data, patient)
+
+            elif current_event['Event Type'] == 'Care Unit Departure':
+                care_unit_departure(future_event_list, state, clock, data, patient)
+
             elif current_event['Event Type'] == 'End of Service':
-                end_of_service(future_event_list, state, clock, data, customer)
+                end_of_service(future_event_list, state, clock, data, patient)
+
             future_event_list.remove(current_event)
+
         else:
             future_event_list.clear()
 
