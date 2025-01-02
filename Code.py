@@ -662,7 +662,7 @@ def simulation(simulation_time):
     clock = 0
     table = []  # a list of lists. Each inner list will be a row in the Excel output.
     step = 1  # every event counts as a step.
-    future_event_list.append({'Event Type': 'End of Simulation', 'Event Time': simulation_time, 'Customer': None})
+    future_event_list.append({'Event Type': 'End of Simulation', 'Event Time': simulation_time, 'Patient': None})
     # print_header()
     while clock < simulation_time:
         sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
