@@ -51,8 +51,10 @@ def starting_state():
 
     data['Last Time Emergency Queue Length Changed'] = 0 # Needed to caculate probability of a full emergency queue
     data['Last Time Preoperative Queue Length Changed'] = 0
-    data['Last Time Laboratory Queue Length Changed'] = 0
-    data['Last Time Operation Queue Length Changed'] = 0
+    data['Last Time Laboratory Normal Queue Length Changed'] = 0
+    data['Last Time Laboratory Urgent Queue Length Changed'] = 0
+    data['Last Time Operation Normal Queue Length Changed'] = 0
+    data['Last Time Operation Urgent Queue Length Changed'] = 0
     data['Last Time General Ward Queue Length Changed'] = 0
     data['Last Time ICU Queue Length Changed'] = 0
     data['Last Time CCU Queue Length Changed'] = 0
