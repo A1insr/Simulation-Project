@@ -50,7 +50,21 @@ def starting_state():
     # # Cumulative Stats
     
     data['Last Time Emergency Queue Length Changed'] = 0 # Needed to caculate probability of a full emergency queue
-    data['Full Emergency Queue Duration'] = 0
+    data['Last Time X2 Queue Length Changed'] = 0
+    data['Last Time X3 Queue Length Changed'] = 0
+    data['Last Time X4 Queue Length Changed'] = 0
+    data['Last Time X5 Queue Length Changed'] = 0
+    data['Last Time X6 Queue Length Changed'] = 0
+    data['Last Time X7 Queue Length Changed'] = 0
+
+    data['Cumulative Stats']['Area Under X1 Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under X2 Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under X3 Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under X4 Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under X5 Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under X6 Queue Length Curve'] = 0
+    data['Cumulative Stats']['Area Under X7 Queue Length Curve'] = 0
+    
     data['Patients With Complex Surgery'] = 0
     data['Number of Repeated Operations For Patients With Complex Operation'] = 0
     data['Number of Immediately Addmited Emergency Patients'] = 0
@@ -58,6 +72,7 @@ def starting_state():
     # data['Cumulative Stats'] = dict()
     data['Cumulative Stats']['Total Patients'] = 0
     data['Cumulative Stats']['System Waiting Time'] = 0
+    data['Cumulative Stats']['Full Emergency Queue Duration'] = 0
     # data['Cumulative Stats']['Server Busy Time'] = 0
     # data['Cumulative Stats']['Queue Waiting Time'] = 0
     # data['Cumulative Stats']['Area Under Queue Length Curve'] = 0
