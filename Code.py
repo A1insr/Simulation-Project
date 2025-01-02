@@ -44,12 +44,18 @@ def starting_state():
     # Data: will save everything
     data = dict()
     data['Patients'] = dict()  # To track each customer, saving their arrival time, time service begins, etc.
-    # data['Last Time Queue Length Changed'] = 0  # Needed to calculate area under queue length curve
-    # data['Queue Patient'] = dict()  # Customer: Arrival Time, used to find first customer in queue
-    #
-    # # Cumulative Stats
+    data['Preoperative Queue Patients'] = dict()  # Patient: Arrival Time, used to find first customer in the queue
+    data['Emergency Queue Patients'] = dict()
+    data['Laboratory Normal Queue Patients'] = dict()
+    data['Laboratory Urgent Queue Patients'] = dict()
+    data['Surgery Normal Queue Patients'] = dict()
+    data['Surgery Urgent Queue Patients'] = dict()
+    data['General Ward Queue Patients'] = dict()
+    data['ICU Queue Patients'] = dict()
+    data['CCU Queue Patients'] = dict()
 
-    data['Last Time Emergency Queue Length Changed'] = 0 # Needed to caculate probability of a full emergency queue
+    # Cumulative Stats
+    data['Last Time Emergency Queue Length Changed'] = 0 # Needed to calculate probability of a full emergency queue
     data['Last Time Preoperative Queue Length Changed'] = 0
     data['Last Time Laboratory Normal Queue Length Changed'] = 0
     data['Last Time Laboratory Urgent Queue Length Changed'] = 0
@@ -104,7 +110,7 @@ def starting_state():
 
     data['Cumulative Stats']['Number of Repeated Operations For Patients With Complex Operation'] = 0
 
-    data['Cumulative Stats']['Number of Immediately Addmited Emergency Patients'] = 0
+    data['Cumulative Stats']['Number of Immediately Admitted Emergency Patients'] = 0
 
     data['Cumulative Stats']['Patients With Complex Surgery'] = 0
     
@@ -129,7 +135,7 @@ def triangular(LB: float, M: float, UB: float) -> float:
     return r
 
 
-def fel_maker(future_event_list, event_type, clock, patient=None):  # Why?
+def fel_maker(future_event_list, event_type, clock, patient=None):
 
     event_time = 0
 
@@ -184,15 +190,10 @@ def arrival(future_event_list, state, clock, data, patient):
         if state['Preoperative Occupied Beds'] < 25:  # if there is an empty bed...
             state['Preoperative Occupied Beds'] += 1
             fel_maker(future_event_list, 'Laboratory Arrival', clock, patient)
-            # data['Patients'][patient]['Time Service Begins'] = clock  # track "every move" of this patient
-            # data['Cumulative Stats']['Service Starters'] += 1
 
-        else:  # If there is no empty bed -> wait in queue
-            # data['Cumulative Stats']['Area Under Queue Length Curve'] +=\
-            #     state['Queue Length'] * (clock - data['Last Time Queue Length Changed'])
+        else:  # there is no empty bed -> wait in queue
             state['Preoperative Queue'] += 1
-            # data['Queue Customers'][customer] = clock  # add this customer to the queue
-            # data['Last Time Queue Length Changed'] = clock
+            data['Preoperative Queue Patients'][patient] = clock  # add this patient to the queue
 
     else:  # Urgent Patient
         data['Patients'][patient]['Patient Type'] = 'Urgent'
@@ -206,8 +207,6 @@ def arrival(future_event_list, state, clock, data, patient):
         data['Patients'][patient]['Surgery Type'] = 'Complex'
 
     # Scheduling the next arrival
-    # We know the current patient
-    # Who will be the next patient? (Ex.: Current Patient = P1 -> Next Patient = P2)
     next_patient = 'P' + str(int(patient[1:]) + 1)
     fel_maker(future_event_list, 'Arrival', clock, next_patient)
 
@@ -219,8 +218,9 @@ def laboratory_arrival(future_event_list, state, clock, data, patient):
             state['Laboratory Occupied Beds'] += 1
             fel_maker(future_event_list, 'Laboratory Departure', clock, patient)
 
-        else:  # if there is an empty bed -> wait in queue
+        else:  # there is no empty bed -> wait in queue
             state['Laboratory Normal Queue'] += 1
+            data['Laboratory Normal Queue Patients'][patient] = clock  # add this patient to the queue
 
     else:  # if the patient is urgent
 
@@ -228,8 +228,9 @@ def laboratory_arrival(future_event_list, state, clock, data, patient):
             state['Laboratory Occupied Beds'] += 1
             fel_maker(future_event_list, 'Laboratory Departure', clock, patient)
 
-        else:  # if there is an empty bed -> wait in queue
+        else:  # if there is no empty bed -> wait in queue
             state['Laboratory Urgent Queue'] += 1
+            data['Laboratory Urgent Queue Patients'][patient] = clock  # add this patient to the queue
 
 
 def laboratory_departure(future_event_list, state, clock, data, patient):
@@ -254,6 +255,7 @@ def operation_arrival(future_event_list, state, clock, data, patient):
 
         if state['Operation Occupied Beds'] == 50:  # if there is no empty bed
             state['Surgery Normal Queue'] += 1
+            data['Surgery Normal Queue Patients'][patient] = clock  # add this patient to the queue
 
         else:  # there is an empty bed
             state['Operation Occupied Beds'] += 1
@@ -270,6 +272,7 @@ def operation_arrival(future_event_list, state, clock, data, patient):
 
         if state['Operation Occupied Beds'] == 50:  # if there is no empty bed
             state['Surgery Urgent Queue'] += 1
+            data['Surgery Urgent Queue Patients'][patient] = clock  # add this patient to the queue
 
         else:  # there is an empty bed
             state['Operation Occupied Beds'] += 1
@@ -291,8 +294,9 @@ def operation_departure(future_event_list, state, clock, data, patient):
 
         if state['General Ward Occupied Beds'] == 40:  # if there is no empty bed
             state['General Ward Queue'] += 1
+            data['General Ward Queue Patients'][patient] = clock  # add this patient to the queue
 
-        else:  # there is a empty bed
+        else:  # there is an empty bed
             state['General Ward Occupied Beds'] += 1
             fel_maker(future_event_list, 'End of Service', clock, patient)
 
@@ -304,17 +308,19 @@ def operation_departure(future_event_list, state, clock, data, patient):
 
             if state['General Ward Occupied Beds'] == 40:  # if there is no empty bed
                 state['General Ward Queue'] += 1
+                data['General Ward Queue Patients'][patient] = clock  # add this patient to the queue
 
             else:  # there is an empty bed
                 state['General Ward Occupied Beds'] += 1
                 fel_maker(future_event_list, 'End of Service', clock, patient)
 
-        elif crn > 0.7 and crn <= 0.8:  # if the patient is sent to the ICU
+        elif 0.7 < crn <= 0.8:  # if the patient is sent to the ICU
 
             data['Patients'][patient]['Unit Type'] = 'ICU'
 
             if state['ICU Occupied Beds'] == 10:  # if there is no empty bed
                 state['ICU Queue'] += 1
+                data['ICU Queue Patients'][patient] = clock  # add this patient to the queue
 
             else:  # there is an empty bed
                 state['ICU Occupied Beds'] += 1
@@ -326,6 +332,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
 
             if state['CCU Occupied Beds'] == 5:  # if there is no empty bed
                 state['CCU Queue'] += 1
+                data['CCU Queue Patients'][patient] = clock  # add this patient to the queue
 
             else:  # there is an empty bed
                 state['CCU Occupied Beds'] += 1
@@ -344,6 +351,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
 
                 if state['ICU Occupied Beds'] == 10:  # if there is no empty bed
                     state['ICU Queue'] += 1
+                    data['ICU Queue Patients'][patient] = clock  # add this patient to the queue
 
                 else:  # there is an empty bed
                     state['ICU Occupied Beds'] += 1
@@ -355,6 +363,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
 
                 if state['CCU Occupied Beds'] == 5:  # if there is no empty bed
                     state['CCU Queue'] += 1
+                    data['CCU Queue Patients'][patient] = clock  # add this patient to the queue
 
                 else:  # there is an empty bed
                     state['CCU Occupied Beds'] += 1
@@ -378,6 +387,7 @@ def condition_deterioration(future_event_list, state, clock, data, patient):
 
     if state['Operation Occupied Beds'] == 50:  # if there is no empty bed in the operation room
         state['Surgery Urgent Queue'] += 1
+        data['Surgery Urgent Queue Patients'][patient] = clock  # add this patient to the queue
 
     else:  # there is an empty bed
         state['Operation Occupied Beds'] += 1
@@ -406,6 +416,7 @@ def care_unit_departure(future_event_list, state, clock, data, patient):
 
     if state['General Ward Occupied Beds'] == 40:  # if there is no empty bed in the general ward
         state['General Ward Queue'] += 1
+        data['General Ward Queue Patients'][patient] = clock  # add this patient to the queue
 
     else:  # there is an empty bed
         state['General Ward Occupied Beds'] += 1
