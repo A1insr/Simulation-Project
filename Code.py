@@ -1,5 +1,5 @@
 """
-Simulation of Single Channel Queue
+Hospital Simulation
 Input Distributions:
     1- Entering population: poisson with mean = 3 people per hour
         (Inter-arrival time: Exponential with mean = 20 minutes)
@@ -12,8 +12,8 @@ Outputs:
     3-
 System starts at an empty state
 
-Author:
-Date:
+Authors: Arman Maghsoudi & Ali Nasr
+Date: Winter 2025
 """
 
 import random
@@ -534,18 +534,12 @@ def create_row(step, current_event, state, data, future_event_list):
     sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
 
     # What should this row contain?
-    # 1. Step, Clock, Event Type and Event Customer
-    row = [step, current_event['Event Time'], current_event['Event Type'], current_event['Customer']]
+    # 1. Step, Clock, Event Type and Event Patient
+    row = [step, current_event['Event Time'], current_event['Event Type'], current_event['Patient']]
     # 2. All state variables
     row.extend(list(state.values()))
     # 3. All Cumulative Stats
     row.extend(list(data['Cumulative Stats'].values()))
-
-    # row = [step, current_event['Event Type'], current_event['Event Time'],
-    #        state['Queue Length'], state['Server Status'], data['Cumulative Stats']['Server Busy Time'],
-    #        data['Cumulative Stats']['Queue Waiting Time'],
-    #        data['Cumulative Stats']['Area Under Queue Length Curve'], data['Cumulative Stats']['Service Starters']]
-
     # 4. All events in fel ('Event Time', 'Event Type' & 'Event Customer' for each event)
     for event in sorted_fel:
         row.append(event['Event Time'])
@@ -573,8 +567,8 @@ def create_main_header(state, data):
     # A part of header which is used for future events will be created in create_excel()
 
     # Header consists of ...
-    # 1. Step, Clock, Event Type and Event Customer
-    header = ['Step', 'Clock', 'Event Type', 'Event Customer']
+    # 1. Step, Clock, Event Type and Event Patient
+    header = ['Step', 'Clock', 'Event Type', 'Event Patient']
     # 2. Names of the state variables
     header.extend(list(state.keys()))
     # 3. Names of the cumulative stats
@@ -592,13 +586,13 @@ def create_excel(table, header):
     header_len = len(header)
 
     # row_len exceeds header_len by (max_fel_length * 3) (Event Type, Event Time & Customer for each event in FEL)
-    # Extend the header with 'Future Event Time', 'Future Event Type', 'Future Event Customer'
+    # Extend the header with 'Future Event Time', 'Future Event Type', 'Future Event Patient'
     # for each event in the fel with maximum size
     i = 1
     for col in range((row_len - header_len) // 3):
         header.append('Future Event Time ' + str(i))
         header.append('Future Event Type ' + str(i))
-        header.append('Future Event Customer ' + str(i))
+        header.append('Future Event Patient ' + str(i))
         i += 1
 
     # Dealing with the output
@@ -609,13 +603,13 @@ def create_excel(table, header):
     writer = pd.ExcelWriter('output.xlsx', engine='xlsxwriter')
 
     # Write out the Excel file to the hard drive
-    df.to_excel(writer, sheet_name='Single-server Queue Output', header=False, startrow=1, index=False)
+    df.to_excel(writer, sheet_name='Initial State Output', header=False, startrow=1, index=False)
 
     # Use the handle to get the workbook (just library syntax, can be found with a simple search)
     workbook = writer.book
 
     # Get the sheet you want to work on
-    worksheet = writer.sheets['Single-server Queue Output']
+    worksheet = writer.sheets['Initial State Output']
 
     # Create a cell-formatter object (this will be used for the cells in the header, hence: header_formatter!)
     header_formatter = workbook.add_format()
@@ -635,7 +629,7 @@ def create_excel(table, header):
     for i, width in enumerate(get_col_widths(df)):
         worksheet.set_column(i - 1, i - 1, width)
 
-    # Create a cell-formatter object for the body of excel file
+    # Create a cell-formatter object for the body of Excel file
     main_formatter = workbook.add_format()
     main_formatter.set_align('center')
     main_formatter.set_align('vcenter')
