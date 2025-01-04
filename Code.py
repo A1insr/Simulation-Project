@@ -182,12 +182,26 @@ def fel_maker(future_event_list, event_type, clock, patient=None):
 
 
 def arrival(future_event_list, state, clock, data, patient):
-    data['Patients'][patient] = dict()
-    data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
+    # data['Patients'][patient] = dict()
+    # data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
 
-    if random.random() >= 0.75:  # Normal Patient
+    if random.random() <= 0.75:  # Normal Patient
+        data['Patients'][patient] = dict()
+        data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
         data['Patients'][patient]['Patient Type'] = 'Normal'
-        if state['Preoperative Occupied Beds'] < 25:  # if there is an empty bed...
+
+        crn = random.random()
+        if crn <= 0.5:  # Simple Surgery
+            data['Patients'][patient]['Surgery Type'] = 'Simple'
+        elif 0.5 < crn <= 0.95:  # Medium Surgery
+            data['Patients'][patient]['Surgery Type'] = 'Medium'
+        else:  # Complex Surgery
+            data['Patients'][patient]['Surgery Type'] = 'Complex'
+
+            # Update number of 'Patients With Complex Surgery'
+            data['Cumulative Stats']['Patients With Complex Surgery'] += 1
+
+        if state['Preoperative Occupied Beds'] < 25:  # if there is an empty bed
             state['Preoperative Occupied Beds'] += 1
             fel_maker(future_event_list, 'Laboratory Arrival', clock, patient)
 
@@ -196,22 +210,79 @@ def arrival(future_event_list, state, clock, data, patient):
             data['Preoperative Queue Patients'][patient] = clock  # add this patient to the queue
 
     else:  # Urgent Patient
-        data['Patients'][patient]['Patient Type'] = 'Urgent'
+        if random.random() >= 0.005:  # if it's single entry
+            # data['Patients'][patient]['Patient Type'] = 'Urgent'
 
-    crn = random.random()
-    if crn <= 0.5:  # Simple Surgery
-        data['Patients'][patient]['Surgery Type'] = 'Simple'
-    elif crn > 0.5 and crn <= 0.95:  # Medium Surgery
-        data['Patients'][patient]['Surgery Type'] = 'Medium'
-    else:  # Complex Surgery
-        data['Patients'][patient]['Surgery Type'] = 'Complex'
-        # Update number of 'Patients With Complex Surgery'
-        data['Cumulative Stats']['Patients With Complex Surgery'] += 1
+            if state['Emergency Queue'] == 10:  # if the queue is full
+                pass  # patient refusal
 
-    # Scheduling the next arrival
-    next_patient = 'P' + str(int(patient[1:]) + 1)
-    fel_maker(future_event_list, 'Arrival', clock, next_patient)
+            else:  # the queue is not full
+                data['Patients'][patient] = dict()
+                data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
+                data['Patients'][patient]['Patient Type'] = 'Urgent'
 
+                crn = random.random()
+                if crn <= 0.5:  # Simple Surgery
+                    data['Patients'][patient]['Surgery Type'] = 'Simple'
+                elif 0.5 < crn <= 0.95:  # Medium Surgery
+                    data['Patients'][patient]['Surgery Type'] = 'Medium'
+                else:  # Complex Surgery
+                    data['Patients'][patient]['Surgery Type'] = 'Complex'
+
+                    # Update number of 'Patients With Complex Surgery'
+                    data['Cumulative Stats']['Patients With Complex Surgery'] += 1
+
+                if state['Emergency Occupied Beds'] == 10:  # if there is no empty bed
+                    state['Emergency Queue'] += 1
+                    data['Emergency Queue Patients'][patient] = clock  # add this patient to the queue
+
+                else:  # there is at least one empty bed
+                    state['Emergency Occupied Beds'] += 1
+                    fel_maker(future_event_list, 'Laboratory Arrival', clock, patient)
+
+            next_patient = 'P' + str(int(patient[1:]) + 1)
+            fel_maker(future_event_list, 'Arrival', clock, next_patient)
+
+        else:  # it's group entry
+            epsilon = 1e-10
+            GroupNumber = random.randint(2,5)
+            if (10 - state['Emergency Occupied Beds']) >= GroupNumber:  # if there are enough empty beds
+                for i in range(GroupNumber):
+                    data['Patients']['P' + str(int(patient[1:]) + i)] = dict()
+                    data['Patients']['P' + str(int(patient[1:]) + i)]['Arrival Time'] = clock + (i * epsilon)  # track every move of this patient
+                    data['Patients']['P' + str(int(patient[1:]) + i)]['Patient Type'] = 'Urgent'
+
+                    crn = random.random()
+                    if crn <= 0.5:  # Simple Surgery
+                        data['Patients']['P' + str(int(patient[1:]) + i)]['Surgery Type'] = 'Simple'
+                    elif 0.5 < crn <= 0.95:  # Medium Surgery
+                        data['Patients']['P' + str(int(patient[1:]) + i)]['Surgery Type'] = 'Medium'
+                    else:  # Complex Surgery
+                        data['Patients']['P' + str(int(patient[1:]) + i)]['Surgery Type'] = 'Complex'
+
+                        # Update number of 'Patients With Complex Surgery'
+                        data['Cumulative Stats']['Patients With Complex Surgery'] += 1
+
+                    state['Emergency Occupied Beds'] += 1
+                    fel_maker(future_event_list, 'Laboratory Arrival', clock + (i * epsilon),
+                              'P' + str(int(patient[1:]) + i))
+
+            else:  # there aren't enough empty beds
+                # patient refusal
+                next_patient = 'P' + str(int(patient[1:]) + GroupNumber)
+                fel_maker(future_event_list, 'Arrival', clock, next_patient)
+
+    # crn = random.random()
+    # if crn <= 0.5:  # Simple Surgery
+    #     data['Patients'][patient]['Surgery Type'] = 'Simple'
+    # elif crn > 0.5 and crn <= 0.95:  # Medium Surgery
+    #     data['Patients'][patient]['Surgery Type'] = 'Medium'
+    # else:  # Complex Surgery
+    #     data['Patients'][patient]['Surgery Type'] = 'Complex'
+
+    # # Scheduling the next arrival
+    # next_patient = 'P' + str(int(patient[1:]) + 1)
+    # fel_maker(future_event_list, 'Arrival', clock, next_patient)
 
 def laboratory_arrival(future_event_list, state, clock, data, patient):
     if data['Patients'][patient]['Patient Type'] == 'Normal':  # if the patient is normal
@@ -440,7 +511,58 @@ def operation_departure(future_event_list, state, clock, data, patient):
         fel_maker(future_event_list, 'Operation Departure', clock, first_patient_in_queue)
 
 
+def care_unit_departure(future_event_list, state, clock, data, patient):
+
+    if random.random() <= 0.001:  # if the patient's condition worsens
+
+        # Update number of 'Number of Repeated Operations For Patients With Complex Operation'
+        data['Cumulative Stats']['Number of Repeated Operations For Patients With Complex Operation'] += 1
+        fel_maker(future_event_list, 'Condition Deterioration', clock, patient)
+
+    else:
+
+        if state['General Ward Occupied Beds'] == 40:  # if there is no empty bed in the general ward
+            state['General Ward Queue'] += 1
+            data['General Ward Queue Patients'][patient] = clock  # add this patient to the queue
+
+        else:  # there is an empty bed
+            state['General Ward Occupied Beds'] += 1
+            fel_maker(future_event_list, 'End of Service', clock, patient)
+
+    if data['Patients'][patient]['Unit Type'] == 'ICU':  # if the unit where the patient was hospitalized is ICU
+
+        if state['ICU Queue'] == 0:  # if there is no patient in the ICU queue
+            state['ICU Occupied Beds'] -= 1
+
+        else:  # there is at least one patient in the queue
+            state['ICU Queue'] -= 1
+
+            # Who is going to get served first?
+            first_patient_in_queue = min(data['ICU Queue Patients'],
+                                         key=data['ICU Queue Patients'].get)
+            data['ICU Queue Patients'].pop(first_patient_in_queue, None)
+            # Schedule 'End of Service' for this patient
+            fel_maker(future_event_list, 'Care Unit Departure', clock, first_patient_in_queue)
+
+    elif data['Patients'][patient]['Unit Type'] == 'CCU':  # if the unit where the patient was hospitalized is CCU
+
+        if state['CCU Queue'] == 0:  # if there is no patient in the CCU queue
+            state['CCU Occupied Beds'] -= 1
+
+        else:  # there is at least one patient in the queue
+            state['CCU Queue'] -= 1
+
+            # Who is going to get served first?
+            first_patient_in_queue = min(data['CCU Queue Patients'],
+                                         key=data['CCU Queue Patients'].get)
+            data['CCU Queue Patients'].pop(first_patient_in_queue, None)
+            # Schedule 'End of Service' for this patient
+            fel_maker(future_event_list, 'Care Unit Departure', clock, first_patient_in_queue)
+
+
 def condition_deterioration(future_event_list, state, clock, data, patient):
+    data['Patients'][patient]['Patient Type'] = 'Urgent'  # the patient will be urgent
+
     if state['Operation Occupied Beds'] == 50:  # if there is no empty bed in the operation room
         state['Surgery Urgent Queue'] += 1
         data['Surgery Urgent Queue Patients'][patient] = clock  # add this patient to the queue
@@ -449,75 +571,36 @@ def condition_deterioration(future_event_list, state, clock, data, patient):
         state['Operation Occupied Beds'] += 1
         fel_maker(future_event_list, 'Operation Departure', clock, patient)
 
-    if data['Patients'][patient]['Unit Type'] == 'ICU':  # if the unit where the patient was hospitalized is ICU
+    # if data['Patients'][patient]['Unit Type'] == 'ICU':  # if the unit where the patient was hospitalized is ICU
+    #
+    #     if state['ICU Queue'] == 0:  # if there is no patient in the ICU queue
+    #         state['ICU Occupied Beds'] -= 1
+    #
+    #     else:  # there is at least one patient in the queue
+    #         state['ICU Queue'] -= 1
+    #
+    #         # Who is going to get served first?
+    #         first_patient_in_queue = min(data['ICU Queue Patients'],
+    #                                      key=data['ICU Queue Patients'].get)
+    #         data['ICU Queue Patients'].pop(first_patient_in_queue, None)
+    #         # Schedule 'End of Service' for this patient
+    #         fel_maker(future_event_list, 'Care Unit Departure', clock, first_patient_in_queue)
+    #
+    # elif data['Patients'][patient]['Unit Type'] == 'CCU':  # if the unit where the patient was hospitalized is CCU
+    #
+    #     if state['CCU Queue'] == 0:  # if there is no patient in the CCU queue
+    #         state['CCU Occupied Beds'] -= 1
+    #
+    #     else:  # there is at least one patient in the queue
+    #         state['CCU Queue'] -= 1
+    #
+    #         # Who is going to get served first?
+    #         first_patient_in_queue = min(data['CCU Queue Patients'],
+    #                                      key=data['CCU Queue Patients'].get)
+    #         data['CCU Queue Patients'].pop(first_patient_in_queue, None)
+    #         # Schedule 'End of Service' for this patient
+    #         fel_maker(future_event_list, 'Care Unit Departure', clock, first_patient_in_queue)
 
-        if state['ICU Queue'] == 0:  # if there is no patient in the ICU queue
-            state['ICU Occupied Beds'] -= 1
-
-        else:  # there is at least one patient in the queue
-            state['ICU Queue'] -= 1
-
-            # Who is going to get served first?
-            first_patient_in_queue = min(data['ICU Queue Patients'],
-                                         key=data['ICU Queue Patients'].get)
-            data['ICU Queue Patients'].pop(first_patient_in_queue, None)
-            # Schedule 'End of Service' for this patient
-            fel_maker(future_event_list, 'Care Unit Departure', clock, first_patient_in_queue)
-
-    elif data['Patients'][patient]['Unit Type'] == 'CCU':  # if the unit where the patient was hospitalized is CCU
-
-        if state['CCU Queue'] == 0:  # if there is no patient in the CCU queue
-            state['CCU Occupied Beds'] -= 1
-
-        else:  # there is at least one patient in the queue
-            state['CCU Queue'] -= 1
-
-            # Who is going to get served first?
-            first_patient_in_queue = min(data['CCU Queue Patients'],
-                                         key=data['CCU Queue Patients'].get)
-            data['CCU Queue Patients'].pop(first_patient_in_queue, None)
-            # Schedule 'End of Service' for this patient
-            fel_maker(future_event_list, 'Care Unit Departure', clock, first_patient_in_queue)
-
-
-def care_unit_departure(future_event_list, state, clock, data, patient):
-    if state['General Ward Occupied Beds'] == 40:  # if there is no empty bed in the general ward
-        state['General Ward Queue'] += 1
-        data['General Ward Queue Patients'][patient] = clock  # add this patient to the queue
-
-    else:  # there is an empty bed
-        state['General Ward Occupied Beds'] += 1
-        fel_maker(future_event_list, 'End of Service', clock, patient)
-
-    if data['Patients'][patient]['Unit Type'] == 'ICU':  # if the unit where the patient was hospitalized is ICU
-
-        if state['ICU Queue'] == 0:  # if there is no patient in the ICU queue
-            state['ICU Occupied Beds'] -= 1
-
-        else:  # there is at least one patient in the queue
-            state['ICU Queue'] -= 1
-
-            # Who is going to get served first?
-            first_patient_in_queue = min(data['ICU Queue Patients'],
-                                         key=data['ICU Queue Patients'].get)
-            data['ICU Queue Patients'].pop(first_patient_in_queue, None)
-            # Schedule 'End of Service' for this patient
-            fel_maker(future_event_list, 'Care Unit Departure', clock, first_patient_in_queue)
-
-    elif data['Patients'][patient]['Unit Type'] == 'CCU':  # if the unit where the patient was hospitalized is CCU
-
-        if state['CCU Queue'] == 0:  # if there is no patient in the CCU queue
-            state['CCU Occupied Beds'] -= 1
-
-        else:  # there is at least one patient in the queue
-            state['CCU Queue'] -= 1
-
-            # Who is going to get served first?
-            first_patient_in_queue = min(data['CCU Queue Patients'],
-                                         key=data['CCU Queue Patients'].get)
-            data['CCU Queue Patients'].pop(first_patient_in_queue, None)
-            # Schedule 'End of Service' for this patient
-            fel_maker(future_event_list, 'Care Unit Departure', clock, first_patient_in_queue)
 
 
 def end_of_service(future_event_list, state, clock, data, patient):
