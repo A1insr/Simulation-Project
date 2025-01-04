@@ -501,6 +501,10 @@ def care_unit_departure(future_event_list, state, clock, data, patient):
 
 
 def end_of_service(future_event_list, state, clock, data, patient):
+    #  End of "service". Update Sytem Waiting Time and count number of patients.
+    data['Cumulative Stats']['System Waiting Time'] += clock - data['Patients'][patient]['Arrival Time']
+    data['Cumulative Stats']['Total Patients'] += 1
+    
     data['Patients'].pop(patient, None)
 
     if state['General Ward Queue'] == 0:  # if there is no patient in the queue
