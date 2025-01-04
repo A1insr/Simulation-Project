@@ -143,7 +143,7 @@ def fel_maker(future_event_list, event_type, clock, patient=None):
         if data['Patients'][patient]['Patient Type'] == 'Normal':
             event_time = clock + exponential(1)
         else:
-            pass
+            event_time = clock + exponential(1 / 4)
 
     elif event_type == 'Laboratory Arrival':
         if data['Patients'][patient]['Patient Type'] == 'Normal':
