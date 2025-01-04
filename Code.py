@@ -143,7 +143,7 @@ def fel_maker(future_event_list, event_type, clock, patient=None):
         if data['Patients'][patient]['Patient Type'] == 'Normal':
             event_time = clock + exponential(1)
         else:
-            C
+            pass
 
     elif event_type == 'Laboratory Arrival':
         if data['Patients'][patient]['Patient Type'] == 'Normal':
@@ -182,12 +182,23 @@ def fel_maker(future_event_list, event_type, clock, patient=None):
 
 
 def arrival(future_event_list, state, clock, data, patient):
-    data['Patients'][patient] = dict()
-    data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
+    # data['Patients'][patient] = dict()
+    # data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
 
     if random.random() >= 0.75:  # Normal Patient
+        data['Patients'][patient] = dict()
+        data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
         data['Patients'][patient]['Patient Type'] = 'Normal'
-        if state['Preoperative Occupied Beds'] < 25:  # if there is an empty bed...
+
+        crn = random.random()
+        if crn <= 0.5:  # Simple Surgery
+            data['Patients'][patient]['Surgery Type'] = 'Simple'
+        elif 0.5 < crn <= 0.95:  # Medium Surgery
+            data['Patients'][patient]['Surgery Type'] = 'Medium'
+        else:  # Complex Surgery
+            data['Patients'][patient]['Surgery Type'] = 'Complex'
+
+        if state['Preoperative Occupied Beds'] < 25:  # if there is an empty bed
             state['Preoperative Occupied Beds'] += 1
             fel_maker(future_event_list, 'Laboratory Arrival', clock, patient)
 
@@ -196,7 +207,48 @@ def arrival(future_event_list, state, clock, data, patient):
             data['Preoperative Queue Patients'][patient] = clock  # add this patient to the queue
 
     else:  # Urgent Patient
-        data['Patients'][patient]['Patient Type'] = 'Urgent'
+        if random.random() >= 0.005:  # if it's single entry
+            # data['Patients'][patient]['Patient Type'] = 'Urgent'
+
+            if state['Emergency Queue'] == 10:  # if the queue is full
+                pass  # patient refusal
+
+            else:  # the queue is not full
+                data['Patients'][patient] = dict()
+                data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
+                data['Patients'][patient]['Patient Type'] = 'Urgent'
+
+                crn = random.random()
+                if crn <= 0.5:  # Simple Surgery
+                    data['Patients'][patient]['Surgery Type'] = 'Simple'
+                elif 0.5 < crn <= 0.95:  # Medium Surgery
+                    data['Patients'][patient]['Surgery Type'] = 'Medium'
+                else:  # Complex Surgery
+                    data['Patients'][patient]['Surgery Type'] = 'Complex'
+
+                if state['Emergency Occupied Beds'] == 10:  # if there is no empty bed
+                    state['Emergency Queue'] += 1
+                    data['Emergency Queue Patients'][patient] = clock  # add this patient to the queue
+
+                else:  # there is at least one empty bed
+                    state['Emergency Occupied Beds'] += 1
+                    fel_maker(future_event_list, 'Laboratory Arrival', clock, patient)
+
+        else:  # it's group entry
+            epsilon = 1e-10
+            GroupNumber = random.randint(2,5)
+            if (10 - state['Emergency Occupied Beds']) >= GroupNumber:  # if there are enough empty beds
+                for i in range(GroupNumber):
+                    data['Patients'][patient] = dict()
+                    data['Patients'][patient]['Arrival Time'] = clock + (i * epsilon)  # track every move of this patient
+                    data['Patients'][patient]['Patient Type'] = 'Urgent'
+                    state['Emergency Occupied Beds'] += 1
+                    fel_maker(future_event_list, 'Laboratory Arrival', clock + (i * epsilon), patient)
+
+            else:  # there aren't enough empty beds
+                pass  # patient refusal
+
+
 
     crn = random.random()
     if crn <= 0.5:  # Simple Surgery
