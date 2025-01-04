@@ -205,6 +205,8 @@ def arrival(future_event_list, state, clock, data, patient):
         data['Patients'][patient]['Surgery Type'] = 'Medium'
     else:  # Complex Surgery
         data['Patients'][patient]['Surgery Type'] = 'Complex'
+        # Update number of 'Patients With Complex Surgery'
+        data['Cumulative Stats']['Patients With Complex Surgery'] += 1
 
     # Scheduling the next arrival
     next_patient = 'P' + str(int(patient[1:]) + 1)
