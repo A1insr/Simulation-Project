@@ -221,6 +221,9 @@ def arrival(future_event_list, state, clock, data, patient):
                 data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
                 data['Patients'][patient]['Patient Type'] = 'Urgent'
 
+                # Update number of 'Emergency Patients'
+                data['Cumulative Stats']['Emergency Patients'] += 1
+
                 crn = random.random()
                 if crn <= 0.5:  # Simple Surgery
                     data['Patients'][patient]['Surgery Type'] = 'Simple'
@@ -238,6 +241,11 @@ def arrival(future_event_list, state, clock, data, patient):
 
                 else:  # there is at least one empty bed
                     state['Emergency Occupied Beds'] += 1
+
+                    
+                    # Update number of 'Number of Immediately Addmited Emergency Patients'
+                    data['Cumulative Stats']['Number of Immediately Addmited Emergency Patients'] += 1
+                        
                     fel_maker(future_event_list, 'Laboratory Arrival', clock, patient)
 
             next_patient = 'P' + str(int(patient[1:]) + 1)
@@ -251,6 +259,12 @@ def arrival(future_event_list, state, clock, data, patient):
                     data['Patients']['P' + str(int(patient[1:]) + i)] = dict()
                     data['Patients']['P' + str(int(patient[1:]) + i)]['Arrival Time'] = clock + (i * epsilon)  # track every move of this patient
                     data['Patients']['P' + str(int(patient[1:]) + i)]['Patient Type'] = 'Urgent'
+
+                    # Update number of 'Emergency Patients'
+                    data['Cumulative Stats']['Emergency Patients'] += 1
+
+                    # Update number of 'Number of Immediately Addmited Emergency Patients'
+                    data['Cumulative Stats']['Number of Immediately Addmited Emergency Patients'] += 1
 
                     crn = random.random()
                     if crn <= 0.5:  # Simple Surgery
@@ -385,6 +399,12 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                     first_patient_in_queue = min(data['Emergency Queue Patients'],
                                                  key=data['Emergency Queue Patients'].get)
                     data['Emergency Queue Patients'].pop(first_patient_in_queue, None)
+
+                    # Check whether the patient is addmitted immidiatley or not
+                    if (clock-data['Patients'][first_patient_in_queue]['Arrival Time'] == 0):
+                        # Update number of 'Number of Immediately Addmited Emergency Patients'
+                        data['Cumulative Stats']['Number of Immediately Addmited Emergency Patients'] += 1
+                    
                     # Schedule 'End of Service' for this patient
                     fel_maker(future_event_list, 'Laboratory Arrival', clock, first_patient_in_queue)
                     
@@ -398,6 +418,12 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                     first_patient_in_queue = min(data['Emergency Queue Patients'],
                                                  key=data['Emergency Queue Patients'].get)
                     data['Emergency Queue Patients'].pop(first_patient_in_queue, None)
+
+                     # Check whether the patient is addmitted immidiatley or not
+                     if (clock-data['Patients'][first_patient_in_queue]['Arrival Time'] == 0):
+                        # Update number of 'Number of Immediately Addmited Emergency Patients'
+                        data['Cumulative Stats']['Number of Immediately Addmited Emergency Patients'] += 1
+                         
                     # Schedule 'End of Service' for this patient
                     fel_maker(future_event_list, 'Laboratory Arrival', clock, first_patient_in_queue)
 
