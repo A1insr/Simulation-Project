@@ -234,33 +234,46 @@ def arrival(future_event_list, state, clock, data, patient):
                     state['Emergency Occupied Beds'] += 1
                     fel_maker(future_event_list, 'Laboratory Arrival', clock, patient)
 
+            next_patient = 'P' + str(int(patient[1:]) + 1)
+            fel_maker(future_event_list, 'Arrival', clock, next_patient)
+
         else:  # it's group entry
             epsilon = 1e-10
             GroupNumber = random.randint(2,5)
             if (10 - state['Emergency Occupied Beds']) >= GroupNumber:  # if there are enough empty beds
                 for i in range(GroupNumber):
-                    data['Patients'][patient] = dict()
-                    data['Patients'][patient]['Arrival Time'] = clock + (i * epsilon)  # track every move of this patient
-                    data['Patients'][patient]['Patient Type'] = 'Urgent'
+                    data['Patients']['P' + str(int(patient[1:]) + i)] = dict()
+                    data['Patients']['P' + str(int(patient[1:]) + i)]['Arrival Time'] = clock + ((i + 1) * epsilon)  # track every move of this patient
+                    data['Patients']['P' + str(int(patient[1:]) + i)]['Patient Type'] = 'Urgent'
+
+                    crn = random.random()
+                    if crn <= 0.5:  # Simple Surgery
+                        data['Patients']['P' + str(int(patient[1:]) + i)]['Surgery Type'] = 'Simple'
+                    elif 0.5 < crn <= 0.95:  # Medium Surgery
+                        data['Patients']['P' + str(int(patient[1:]) + i)]['Surgery Type'] = 'Medium'
+                    else:  # Complex Surgery
+                        data['Patients']['P' + str(int(patient[1:]) + i)]['Surgery Type'] = 'Complex'
+
                     state['Emergency Occupied Beds'] += 1
-                    fel_maker(future_event_list, 'Laboratory Arrival', clock + (i * epsilon), patient)
+                    fel_maker(future_event_list, 'Laboratory Arrival', clock + ((i + 1) * epsilon),
+                              'P' + str(int(patient[1:]) + i))
 
             else:  # there aren't enough empty beds
-                pass  # patient refusal
+                # patient refusal
+                next_patient = 'P' + str(int(patient[1:]) + GroupNumber)
+                fel_maker(future_event_list, 'Arrival', clock, next_patient)
 
+    # crn = random.random()
+    # if crn <= 0.5:  # Simple Surgery
+    #     data['Patients'][patient]['Surgery Type'] = 'Simple'
+    # elif crn > 0.5 and crn <= 0.95:  # Medium Surgery
+    #     data['Patients'][patient]['Surgery Type'] = 'Medium'
+    # else:  # Complex Surgery
+    #     data['Patients'][patient]['Surgery Type'] = 'Complex'
 
-
-    crn = random.random()
-    if crn <= 0.5:  # Simple Surgery
-        data['Patients'][patient]['Surgery Type'] = 'Simple'
-    elif crn > 0.5 and crn <= 0.95:  # Medium Surgery
-        data['Patients'][patient]['Surgery Type'] = 'Medium'
-    else:  # Complex Surgery
-        data['Patients'][patient]['Surgery Type'] = 'Complex'
-
-    # Scheduling the next arrival
-    next_patient = 'P' + str(int(patient[1:]) + 1)
-    fel_maker(future_event_list, 'Arrival', clock, next_patient)
+    # # Scheduling the next arrival
+    # next_patient = 'P' + str(int(patient[1:]) + 1)
+    # fel_maker(future_event_list, 'Arrival', clock, next_patient)
 
 
 def laboratory_arrival(future_event_list, state, clock, data, patient):
