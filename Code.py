@@ -300,15 +300,33 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                 state['Emergency Occupied Beds'] -= 1
 
             else:  # there is at least one patient in the emergency queue
-                state['Emergency Queue'] -= 1
-
-                # Who is going to get served first?
-                first_patient_in_queue = min(data['Emergency Queue Patients'],
-                                             key=data['Emergency Queue Patients'].get)
-                data['Emergency Queue Patients'].pop(first_patient_in_queue, None)
-                # Schedule 'End of Service' for this patient
-                fel_maker(future_event_list, 'Laboratory Arrival', clock, first_patient_in_queue)
-
+                if state['Emergency Queue'] == 10:
+                    # Queue length changes, so at this moment we can calcualte the time that the queue was full
+                    data['Cumulative Stats']['Full Emergency Queue Duration'] += clock – data['Last Time Emergency Queue Length Changed']
+                    # # Queue length just changed. Update 'Last Time Queue Length Changed'
+                    data['Last Time Emergency Queue Length Changed'] = clock
+                    
+                    state['Emergency Queue'] -= 1
+    
+                    # Who is going to get served first?
+                    first_patient_in_queue = min(data['Emergency Queue Patients'],
+                                                 key=data['Emergency Queue Patients'].get)
+                    data['Emergency Queue Patients'].pop(first_patient_in_queue, None)
+                    # Schedule 'End of Service' for this patient
+                    fel_maker(future_event_list, 'Laboratory Arrival', clock, first_patient_in_queue)
+                    
+                 else:
+                    # # Queue length just changed. Update 'Last Time Queue Length Changed'
+                    data['Last Time Emergency Queue Length Changed'] = clock
+                    
+                    state['Emergency Queue'] -= 1
+    
+                    # Who is going to get served first?
+                    first_patient_in_queue = min(data['Emergency Queue Patients'],
+                                                 key=data['Emergency Queue Patients'].get)
+                    data['Emergency Queue Patients'].pop(first_patient_in_queue, None)
+                    # Schedule 'End of Service' for this patient
+                    fel_maker(future_event_list, 'Laboratory Arrival', clock, first_patient_in_queue)
 
 def operation_departure(future_event_list, state, clock, data, patient):
     if data['Patients'][patient]['Surgery Type'] == 'Simple':  # if the surgery type is simple
