@@ -185,7 +185,7 @@ def arrival(future_event_list, state, clock, data, patient):
     # data['Patients'][patient] = dict()
     # data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
 
-    if random.random() >= 0.75:  # Normal Patient
+    if random.random() <= 0.75:  # Normal Patient
         data['Patients'][patient] = dict()
         data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
         data['Patients'][patient]['Patient Type'] = 'Normal'
@@ -243,7 +243,7 @@ def arrival(future_event_list, state, clock, data, patient):
             if (10 - state['Emergency Occupied Beds']) >= GroupNumber:  # if there are enough empty beds
                 for i in range(GroupNumber):
                     data['Patients']['P' + str(int(patient[1:]) + i)] = dict()
-                    data['Patients']['P' + str(int(patient[1:]) + i)]['Arrival Time'] = clock + ((i + 1) * epsilon)  # track every move of this patient
+                    data['Patients']['P' + str(int(patient[1:]) + i)]['Arrival Time'] = clock + (i * epsilon)  # track every move of this patient
                     data['Patients']['P' + str(int(patient[1:]) + i)]['Patient Type'] = 'Urgent'
 
                     crn = random.random()
@@ -255,7 +255,7 @@ def arrival(future_event_list, state, clock, data, patient):
                         data['Patients']['P' + str(int(patient[1:]) + i)]['Surgery Type'] = 'Complex'
 
                     state['Emergency Occupied Beds'] += 1
-                    fel_maker(future_event_list, 'Laboratory Arrival', clock + ((i + 1) * epsilon),
+                    fel_maker(future_event_list, 'Laboratory Arrival', clock + (i * epsilon),
                               'P' + str(int(patient[1:]) + i))
 
             else:  # there aren't enough empty beds
