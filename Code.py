@@ -1195,6 +1195,53 @@ def simulation(simulation_time):
     Wq = data['Cumulative Stats']['Queue Waiting Time'] / data['Cumulative Stats']['Service Starters']
     rho = data['Cumulative Stats']['Server Busy Time'] / simulation_time
 
+    # Criteria_1
+    average_time_in_system = data['Cumulative Stats']['System Waiting Time'] / data['Cumulative Stats']['Total Patients']
+
+    # Criteria_2
+    Full_Emergency_Queue_Probability = data['Cumulative Stats']['Full Emergency Queue Duration'] / simulation_time
+
+    # Criteria_3
+    average_complex_operation_reoperations = data['Cumulative Stats']['Number of Repeated Operations For Patients With Complex Operation'] \
+        / data['Cumulative Stats']['Patients With Complex Surgery']
+
+    # Criteria_6
+    immediately_admitted_emergency_patients_percentage = (data['Cumulative Stats']['Number of Immediately Addmited Emergency Patients'] \
+        / data['Cumulative Stats']['Emergency Patients']) * 100
+
+    # Criteria_5
+    rho_Emergency = data['Cumulative Stats']['Emergency Server Busy Time'] / simulation_time
+    rho_Preoperative = data['Cumulative Stats']['Preoperative Server Busy Time'] / simulation_time
+    rho_Laboratory = data['Cumulative Stats']['Laboratory Server Busy Time'] / simulation_time
+    rho_Operation = data['Cumulative Stats']['Operation Server Busy Time'] / simulation_time
+    rho_General_Ward = data['Cumulative Stats']['General Ward Server Busy Time'] / simulation_time
+    rho_ICU = data['Cumulative Stats']['ICU Server Busy Time'] / simulation_time
+    rho_CCU = data['Cumulative Stats']['CCU Server Busy Time'] / simulation_time
+
+    # Criteria_4
+    # Average Queue Length for each queue
+    Lq_Emergency = data['Cumulative Stats']['Area Under Emergency Queue Length Curve'] / simulation_time
+    Lq_Preoperative = data['Cumulative Stats']['Area Under Preoperative Queue Length Curve'] / simulation_time
+    Lq_Laboratory_Normal = data['Cumulative Stats']['Area Under Laboratory Normal Queue Length Curve'] / simulation_time
+    Lq_Laboratory_Urgent = data['Cumulative Stats']['Area Under Laboratory Urgent Queue Length Curve'] / simulation_time
+    Lq_Operation_Normal = data['Cumulative Stats']['Area Under Operation Normal Queue Length Curve'] / simulation_time
+    Lq_Operation_Urgent = data['Cumulative Stats']['Area Under Operation Urgent Queue Length Curve'] / simulation_time
+    Lq_General_Ward = data['Cumulative Stats']['Area Under General Ward Queue Length Curve'] / simulation_time
+    Lq_ICU = data['Cumulative Stats']['Area Under ICU Queue Length Curve'] / simulation_time
+    Lq_CCU = data['Cumulative Stats']['Area Under CCU Queue Length Curve'] / simulation_time
+
+    # Average Waiting Time in each queue 
+    Wq_Emergency = data['Cumulative Stats']['Emergency Queue Waiting Time'] / data['Cumulative Stats']['Emergency Service Starters'] 
+    Wq_Preoperative = data['Cumulative Stats']['Preoperative Queue Waiting Time'] / data['Cumulative Stats']['Preoperative Service Starters'] 
+    Wq_Laboratory = (data['Cumulative Stats']['Laboratory Normal Queue Waiting Time'] + data['Cumulative Stats']['Laboratory Urgent Queue Waiting Time']) \
+        / data['Cumulative Stats']['Laboratory Service Starters'] 
+    Wq_Operation = (data['Cumulative Stats']['Operation Normal Queue Waiting Time'] + data['Cumulative Stats']['Operation Urgent Queue Waiting Time']) \
+        / data['Cumulative Stats']['Operation Service Starters'] 
+    Wq_General_Ward = data['Cumulative Stats']['General Ward Queue Waiting Time'] / data['Cumulative Stats']['General Ward Service Starters'] 
+    Wq_ICU = data['Cumulative Stats']['ICU Queue Waiting Time'] / data['Cumulative Stats']['ICU Service Starters'] 
+    Wq_CCU = data['Cumulative Stats']['CCU Queue Waiting Time'] / data['Cumulative Stats']['CCU Service Starters'] 
+
+
     print(f'Lq = {Lq}')
     print(f'Wq = {Wq}')
     print(f'rho = {rho}')
