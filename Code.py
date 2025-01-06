@@ -317,7 +317,7 @@ def laboratory_departure(future_event_list, state, clock, data, patient):
             fel_maker(future_event_list, 'Laboratory Departure', clock, first_patient_in_queue)
 
     else:  # there is at least one urgent patient in the queue
-        state['Laboratory Urgent Queue'] -= 0
+        state['Laboratory Urgent Queue'] -= 1
 
         # Who is going to get served first?
         first_patient_in_queue = min(data['Laboratory Urgent Queue Patients'],
