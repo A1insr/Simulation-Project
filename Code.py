@@ -207,8 +207,15 @@ def arrival(future_event_list, state, clock, data, patient):
             fel_maker(future_event_list, 'Laboratory Arrival', clock, patient)
 
         else:  # there is no empty bed -> wait in queue
+            # Queue length changes, so calculate the area under the current rectangle
+            data['Cumulative Stats']['Area Under Preoperative Queue Length Curve'] += \
+                (clock - data['Last Time Preoperative Queue Length Changed'])*(state['Preoperative Queue'])
+            
             state['Preoperative Queue'] += 1
             data['Preoperative Queue Patients'][patient] = clock  # add this patient to the queue
+
+            # Queue length just changed. Update 'Last Time Queue Length Changed'
+            data['Last Time Preoperative Queue Length Changed'] = clock
 
     else:  # Urgent Patient
         if random.random() >= 0.005:  # if it's single entry
@@ -237,8 +244,15 @@ def arrival(future_event_list, state, clock, data, patient):
                     data['Cumulative Stats']['Patients With Complex Surgery'] += 1
 
                 if state['Emergency Occupied Beds'] == 10:  # if there is no empty bed
+                    # Queue length changes, so calculate the area under the current rectangle
+                    data['Cumulative Stats']['Area Under Emergency Queue Length Curve'] += \
+                        (clock - data['Last Time Emergency Queue Length Changed'])*(state['Emergency Queue'])
+                    
                     state['Emergency Queue'] += 1
                     data['Emergency Queue Patients'][patient] = clock  # add this patient to the queue
+
+                    # Queue length just changed. Update 'Last Time Queue Length Changed'
+                    data['Last Time Emergency Queue Length Changed'] = clock
 
                 else:  # there is at least one empty bed
                     state['Emergency Occupied Beds'] += 1
@@ -309,8 +323,15 @@ def laboratory_arrival(future_event_list, state, clock, data, patient):
             fel_maker(future_event_list, 'Laboratory Departure', clock, patient)
 
         else:  # there is no empty bed -> wait in queue
+            # Queue length changes, so calculate the area under the current rectangle
+            data['Cumulative Stats']['Area Under Laboratory Normal Queue Length Curve'] += \
+                (clock - data['Last Time Laboratory Normal Queue Length Changed'])*(state['Laboratory Normal Queue'])
+            
             state['Laboratory Normal Queue'] += 1
             data['Laboratory Normal Queue Patients'][patient] = clock  # add this patient to the queue
+
+            # Queue length just changed. Update 'Last Time Queue Length Changed'
+            data['Last Time Laboratory Normal Queue Length Changed'] = clock
 
     else:  # if the patient is urgent
 
@@ -320,8 +341,15 @@ def laboratory_arrival(future_event_list, state, clock, data, patient):
             fel_maker(future_event_list, 'Laboratory Departure', clock, patient)
 
         else:  # if there is no empty bed -> wait in queue
+            # Queue length changes, so calculate the area under the current rectangle
+            data['Cumulative Stats']['Area Under Laboratory Urgent Queue Length Curve'] += \
+                (clock - data['Last Time Laboratory Urgent Queue Length Changed'])*(state['Laboratory Urgent Queue'])
+            
             state['Laboratory Urgent Queue'] += 1
             data['Laboratory Urgent Queue Patients'][patient] = clock  # add this patient to the queue
+
+            # Queue length just changed. Update 'Last Time Queue Length Changed'
+            data['Last Time Laboratory Urgent Queue Length Changed'] = clock
 
 
 def laboratory_departure(future_event_list, state, clock, data, patient):
@@ -347,7 +375,14 @@ def laboratory_departure(future_event_list, state, clock, data, patient):
             state['Laboratory Occupied Beds'] -= 1
 
         else:  # there is at least one normal patient in the queue
+            # Queue length changes, so calculate the area under the current rectangle
+            data['Cumulative Stats']['Area Under Laboratory Normal Queue Length Curve'] += \
+                (clock - data['Last Time Laboratory Normal Queue Length Changed'])*(state['Laboratory Normal Queue'])
+            
             state['Laboratory Normal Queue'] -= 1
+
+            # Queue length just changed. Update 'Last Time Queue Length Changed'
+            data['Last Time Laboratory Normal Queue Length Changed'] = clock
 
             # Who is going to get served first?
             first_patient_in_queue = min(data['Laboratory Normal Queue Patients'],
@@ -360,7 +395,14 @@ def laboratory_departure(future_event_list, state, clock, data, patient):
             fel_maker(future_event_list, 'Laboratory Departure', clock, first_patient_in_queue)
 
     else:  # there is at least one urgent patient in the queue
-        state['Laboratory Urgent Queue'] -= 0
+        # Queue length changes, so calculate the area under the current rectangle
+        data['Cumulative Stats']['Area Under Laboratory Urgent Queue Length Curve'] += \
+            (clock - data['Last Time Laboratory Urgent Queue Length Changed'])*(state['Laboratory Urgent Queue'])
+        
+        state['Laboratory Urgent Queue'] -= 1
+
+        # Queue length just changed. Update 'Last Time Queue Length Changed'
+        data['Last Time Laboratory Urgent Queue Length Changed'] = clock
         
         # Who is going to get served first?
         first_patient_in_queue = min(data['Laboratory Urgent Queue Patients'],
@@ -377,8 +419,15 @@ def operation_arrival(future_event_list, state, clock, data, patient):
     if data['Patients'][patient]['Patient Type'] == 'Normal':  # if the patient is normal
 
         if state['Operation Occupied Beds'] == 50:  # if there is no empty bed
+            # Queue length changes, so calculate the area under the current rectangle
+            data['Cumulative Stats']['Area Under Surgery Normal Queue Length Curve'] += \
+                (clock - data['Last Time Surgery Normal Queue Length Changed'])*(state['Surgery Normal Queue'])
+            
             state['Surgery Normal Queue'] += 1
             data['Surgery Normal Queue Patients'][patient] = clock  # add this patient to the queue
+
+            # Queue length just changed. Update 'Last Time Queue Length Changed'
+            data['Last Time Surgery Normal Queue Length Changed'] = clock
 
         else:  # there is an empty bed
             state['Operation Occupied Beds'] += 1
@@ -390,7 +439,14 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                 state['Preoperative Occupied Beds'] -= 1
 
             else:  # there is at least one patient in the preoperative queue
+                # Queue length changes, so calculate the area under the current rectangle
+                data['Cumulative Stats']['Area Under Preoperative Queue Length Curve'] += \
+                    (clock - data['Last Time Preoperative Queue Length Changed'])*(state['Preoperative Queue'])
+                
                 state['Preoperative Queue'] -= 1
+
+                # Queue length just changed. Update 'Last Time Queue Length Changed'
+                data['Last Time Preoperative Queue Length Changed'] = clock
 
                 # Who is going to get served first?
                 first_patient_in_queue = min(data['Preoperative Queue Patients'],
@@ -404,8 +460,16 @@ def operation_arrival(future_event_list, state, clock, data, patient):
     else:  # the patient is urgent
 
         if state['Operation Occupied Beds'] == 50:  # if there is no empty bed
+            # Queue length changes, so calculate the area under the current rectangle
+            data['Cumulative Stats']['Area Under Surgery Urgent Queue Length Curve'] += \
+                (clock - data['Last Time Surgery Urgent Queue Length Changed'])*(state['Surgery Urgent Queue'])
+            
             state['Surgery Urgent Queue'] += 1
             data['Surgery Urgent Queue Patients'][patient] = clock  # add this patient to the queue
+
+            # Queue length just changed. Update 'Last Time Queue Length Changed'
+            data['Last Time Surgery Urgent Queue Length Changed'] = clock
+            
 
         else:  # there is an empty bed
             state['Operation Occupied Beds'] += 1
@@ -420,12 +484,16 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                 if state['Emergency Queue'] == 10:
                     # Queue length changes, so at this moment we can calcualte the time that the queue was full
                     data['Cumulative Stats']['Full Emergency Queue Duration'] += clock – data['Last Time Emergency Queue Length Changed']
-                    # # Queue length just changed. Update 'Last Time Queue Length Changed'
-                    data['Last Time Emergency Queue Length Changed'] = clock
-                    
+
+                    # Queue length changes, so calculate the area under the current rectangle
+                    data['Cumulative Stats']['Area Under Emergency Queue Length Curve'] += \
+                        (clock - data['Last Time Emergency Queue Length Changed'])*(state['Emergency Queue'])
+
                     state['Emergency Queue'] -= 1
                     
-    
+                    # Queue length just changed. Update 'Last Time Queue Length Changed'
+                    data['Last Time Emergency Queue Length Changed'] = clock
+                
                     # Who is going to get served first?
                     first_patient_in_queue = min(data['Emergency Queue Patients'],
                                                  key=data['Emergency Queue Patients'].get)
@@ -443,11 +511,15 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                     fel_maker(future_event_list, 'Laboratory Arrival', clock, first_patient_in_queue)
                     
                  else:
-                    # # Queue length just changed. Update 'Last Time Queue Length Changed'
+                    # Queue length changes, so calculate the area under the current rectangle
+                    data['Cumulative Stats']['Area Under Emergency Queue Length Curve'] += \
+                        (clock - data['Last Time Emergency Queue Length Changed'])*(state['Emergency Queue'])
+                     
+                    state['Emergency Queue'] -= 1 
+                    
+                    # Queue length just changed. Update 'Last Time Queue Length Changed'
                     data['Last Time Emergency Queue Length Changed'] = clock
                     
-                    state['Emergency Queue'] -= 1
-    
                     # Who is going to get served first?
                     first_patient_in_queue = min(data['Emergency Queue Patients'],
                                                  key=data['Emergency Queue Patients'].get)
@@ -473,8 +545,15 @@ def operation_departure(future_event_list, state, clock, data, patient):
         data['Patients'][patient]['Unit Type'] = 'General Ward'
 
         if state['General Ward Occupied Beds'] == 40:  # if there is no empty bed
+            # Queue length changes, so calculate the area under the current rectangle
+            data['Cumulative Stats']['Area Under General Ward Queue Length Curve'] += \
+                (clock - data['Last Time General Ward Queue Length Changed'])*(state['General Ward Queue'])
+            
             state['General Ward Queue'] += 1
             data['General Ward Queue Patients'][patient] = clock  # add this patient to the queue
+
+            # Queue length just changed. Update 'Last Time Queue Length Changed'
+            data['Last Time General Ward Queue Length Changed'] = clock
 
         else:  # there is an empty bed
             state['General Ward Occupied Beds'] += 1
@@ -488,8 +567,15 @@ def operation_departure(future_event_list, state, clock, data, patient):
             data['Patients'][patient]['Unit Type'] = 'General Ward'
 
             if state['General Ward Occupied Beds'] == 40:  # if there is no empty bed
+                # Queue length changes, so calculate the area under the current rectangle
+                data['Cumulative Stats']['Area Under General Ward Queue Length Curve'] += \
+                    (clock - data['Last Time General Ward Queue Length Changed'])*(state['General Ward Queue'])
+                
                 state['General Ward Queue'] += 1
                 data['General Ward Queue Patients'][patient] = clock  # add this patient to the queue
+
+                # Queue length just changed. Update 'Last Time Queue Length Changed'
+                data['Last Time General Ward Queue Length Changed'] = clock
 
             else:  # there is an empty bed
                 state['General Ward Occupied Beds'] += 1
@@ -501,8 +587,15 @@ def operation_departure(future_event_list, state, clock, data, patient):
             data['Patients'][patient]['Unit Type'] = 'ICU'
 
             if state['ICU Occupied Beds'] == 10:  # if there is no empty bed
+                # Queue length changes, so calculate the area under the current rectangle
+                data['Cumulative Stats']['Area Under ICU Queue Length Curve'] += \
+                    (clock - data['Last Time ICU Queue Length Changed'])*(state['ICU Queue'])
+                
                 state['ICU Queue'] += 1
                 data['ICU Queue Patients'][patient] = clock  # add this patient to the queue
+
+                # Queue length just changed. Update 'Last Time Queue Length Changed'
+                data['Last Time ICU Queue Length Changed'] = clock
 
             else:  # there is an empty bed
                 state['ICU Occupied Beds'] += 1
@@ -514,8 +607,15 @@ def operation_departure(future_event_list, state, clock, data, patient):
             data['Patients'][patient]['Unit Type'] = 'CCU'
 
             if state['CCU Occupied Beds'] == 5:  # if there is no empty bed
+                # Queue length changes, so calculate the area under the current rectangle
+                data['Cumulative Stats']['Area Under CCU Queue Length Curve'] += \
+                    (clock - data['Last Time CCU Queue Length Changed'])*(state['CCU Queue'])
+                
                 state['CCU Queue'] += 1
                 data['CCU Queue Patients'][patient] = clock  # add this patient to the queue
+
+                # Queue length just changed. Update 'Last Time Queue Length Changed'
+                data['Last Time CCU Queue Length Changed'] = clock
 
             else:  # there is an empty bed
                 state['CCU Occupied Beds'] += 1
@@ -534,8 +634,15 @@ def operation_departure(future_event_list, state, clock, data, patient):
                 data['Patients'][patient]['Unit Type'] = 'ICU'
 
                 if state['ICU Occupied Beds'] == 10:  # if there is no empty bed
+                    # Queue length changes, so calculate the area under the current rectangle
+                    data['Cumulative Stats']['Area Under ICU Queue Length Curve'] += \
+                        (clock - data['Last Time ICU Queue Length Changed'])*(state['ICU Queue'])
+                    
                     state['ICU Queue'] += 1
                     data['ICU Queue Patients'][patient] = clock  # add this patient to the queue
+
+                    # Queue length just changed. Update 'Last Time Queue Length Changed'
+                    data['Last Time ICU Queue Length Changed'] = clock
 
                 else:  # there is an empty bed
                     state['ICU Occupied Beds'] += 1
@@ -547,9 +654,16 @@ def operation_departure(future_event_list, state, clock, data, patient):
                 data['Patients'][patient]['Unit Type'] = 'CCU'
 
                 if state['CCU Occupied Beds'] == 5:  # if there is no empty bed
+                    # Queue length changes, so calculate the area under the current rectangle
+                    data['Cumulative Stats']['Area Under CCU Queue Length Curve'] += \
+                        (clock - data['Last Time CCU Queue Length Changed'])*(state['CCU Queue'])
+                    
                     state['CCU Queue'] += 1
                     data['CCU Queue Patients'][patient] = clock  # add this patient to the queue
 
+                    # Queue length just changed. Update 'Last Time Queue Length Changed'
+                    data['Last Time CCU Queue Length Changed'] = clock
+                    
                 else:  # there is an empty bed
                     state['CCU Occupied Beds'] += 1
                     data['Patients'][patient]['Time ICU Service Begins'] = clock  # track "every move" of this patient
@@ -562,7 +676,14 @@ def operation_departure(future_event_list, state, clock, data, patient):
             state['Operation Occupied Beds'] -= 1
 
         else:  # there is at least one normal patient in the queue
+            # Queue length changes, so calculate the area under the current rectangle
+            data['Cumulative Stats']['Area Under Surgery Normal Queue Length Curve'] += \
+                (clock - data['Last Time Surgery Normal Queue Length Changed'])*(state['Surgery Normal Queue'])
+
             state['Surgery Normal Queue'] -= 1
+            
+            # Queue length just changed. Update 'Last Time Queue Length Changed'
+            data['Last Time Surgery Normal Queue Length Changed'] = clock
 
             # Who is going to get served first?
             first_patient_in_queue = min(data['Surgery Normal Queue Patients'],
@@ -575,8 +696,15 @@ def operation_departure(future_event_list, state, clock, data, patient):
             fel_maker(future_event_list, 'Operation Departure', clock, first_patient_in_queue)
 
     else:  # there is at least one urgent patient in the queue
-        state['Surgery Urgent Queue'] -= 1
+        # Queue length changes, so calculate the area under the current rectangle
+        data['Cumulative Stats']['Area Under Surgery Urgent Queue Length Curve'] += \
+            (clock - data['Last Time Surgery Urgent Queue Length Changed'])*(state['Surgery Urgent Queue'])
 
+        state['Surgery Urgent Queue'] -= 1
+        
+        # Queue length just changed. Update 'Last Time Queue Length Changed'
+        data['Last Time Surgery Urgent Queue Length Changed'] = clock
+       
         # Who is going to get served first?
         first_patient_in_queue = min(data['Surgery Urgent Queue Patients'],
                                      key=data['Surgery Urgent Queue Patients'].get)
@@ -599,8 +727,16 @@ def care_unit_departure(future_event_list, state, clock, data, patient):
     else:
 
         if state['General Ward Occupied Beds'] == 40:  # if there is no empty bed in the general ward
+            # Queue length changes, so calculate the area under the current rectangle
+            data['Cumulative Stats']['Area Under General Ward Queue Length Curve'] += \
+                (clock - data['Last Time General Ward Queue Length Changed'])*(state['General Ward Queue'])
+                
+
             state['General Ward Queue'] += 1
             data['General Ward Queue Patients'][patient] = clock  # add this patient to the queue
+
+            # Queue length just changed. Update 'Last Time Queue Length Changed'
+            data['Last Time General Ward Queue Length Changed'] = clock
 
         else:  # there is an empty bed
             state['General Ward Occupied Beds'] += 1
@@ -617,7 +753,14 @@ def care_unit_departure(future_event_list, state, clock, data, patient):
             state['ICU Occupied Beds'] -= 1
 
         else:  # there is at least one patient in the queue
+            # Queue length changes, so calculate the area under the current rectangle
+            data['Cumulative Stats']['Area Under ICU Queue Length Curve'] += \
+                (clock - data['Last Time ICU Queue Length Changed'])*(state['ICU Queue'])
+    
             state['ICU Queue'] -= 1
+
+            # Queue length just changed. Update 'Last Time Queue Length Changed'
+            data['Last Time ICU Queue Length Changed'] = clock
 
             # Who is going to get served first?
             first_patient_in_queue = min(data['ICU Queue Patients'],
@@ -639,7 +782,14 @@ def care_unit_departure(future_event_list, state, clock, data, patient):
             state['CCU Occupied Beds'] -= 1
 
         else:  # there is at least one patient in the queue
+            # Queue length changes, so calculate the area under the current rectangle
+            data['Cumulative Stats']['Area Under CCU Queue Length Curve'] += \
+                (clock - data['Last Time CCU Queue Length Changed'])*(state['CCU Queue'])
+            
             state['CCU Queue'] -= 1
+
+            # Queue length just changed. Update 'Last Time Queue Length Changed'
+            data['Last Time CCU Queue Length Changed'] = clock
 
             # Who is going to get served first?
             first_patient_in_queue = min(data['CCU Queue Patients'],
@@ -656,8 +806,16 @@ def condition_deterioration(future_event_list, state, clock, data, patient):
     data['Patients'][patient]['Patient Type'] = 'Urgent'  # the patient will be urgent
 
     if state['Operation Occupied Beds'] == 50:  # if there is no empty bed in the operation room
+        # Queue length changes, so calculate the area under the current rectangle
+        data['Cumulative Stats']['Area Under Surgery Urgent Queue Length Curve'] += \
+            (clock - data['Last Time Surgery Urgent Queue Length Changed'])*(state['Surgery Urgent Queue'])
+            
         state['Surgery Urgent Queue'] += 1
         data['Surgery Urgent Queue Patients'][patient] = clock  # add this patient to the queue
+
+        # Queue length just changed. Update 'Last Time Queue Length Changed'
+        data['Last Time Surgery Urgent Queue Length Changed'] = clock
+        
 
     else:  # there is an empty bed
         state['Operation Occupied Beds'] += 1
@@ -711,7 +869,14 @@ def end_of_service(future_event_list, state, clock, data, patient):
         state['General Ward Occupied Beds'] -= 1
 
     else:  # there is at least one patient in the queue
+        # Queue length changes, so calculate the area under the current rectangle
+        data['Cumulative Stats']['Area Under General Ward Queue Length Curve'] += \
+            (clock - data['Last Time General Ward Queue Length Changed'])*(state['General Ward Queue'])
+            
         state['General Ward Queue'] -= 1
+
+        # Queue length just changed. Update 'Last Time Queue Length Changed'
+        data['Last Time General Ward Queue Length Changed'] = clock
 
         # Who is going to get served first?
         first_patient_in_queue = min(data['General Ward Queue Patients'],
