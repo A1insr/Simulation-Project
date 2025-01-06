@@ -315,6 +315,8 @@ def arrival(future_event_list, state, clock, data, patient):
     # fel_maker(future_event_list, 'Arrival', clock, next_patient)
 
 def laboratory_arrival(future_event_list, state, clock, data, patient):
+    data['Patients'][patient]['Laboratory Arrival Time'] = clock  # track every move of this patient
+    
     if data['Patients'][patient]['Patient Type'] == 'Normal':  # if the patient is normal
 
         if state['Laboratory Occupied Beds'] < 3:  # if there is an empty bed
@@ -416,6 +418,8 @@ def laboratory_departure(future_event_list, state, clock, data, patient):
 
 
 def operation_arrival(future_event_list, state, clock, data, patient):
+    data['Patients'][patient]['Operation Arrival Time'] = clock  # track every move of this patient
+    
     if data['Patients'][patient]['Patient Type'] == 'Normal':  # if the patient is normal
 
         if state['Operation Occupied Beds'] == 50:  # if there is no empty bed
@@ -541,9 +545,10 @@ def operation_departure(future_event_list, state, clock, data, patient):
         *(state['Operation Occupied Beds']/50)
     
     if data['Patients'][patient]['Surgery Type'] == 'Simple':  # if the surgery type is simple
-
+        
         data['Patients'][patient]['Unit Type'] = 'General Ward'
-
+        data['Patients'][patient]['General Ward Arrival Time'] = clock  # track every move of this patient
+        
         if state['General Ward Occupied Beds'] == 40:  # if there is no empty bed
             # Queue length changes, so calculate the area under the current rectangle
             data['Cumulative Stats']['Area Under General Ward Queue Length Curve'] += \
@@ -565,6 +570,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
         if crn <= 0.7:  # if the patient is sent to the general ward
 
             data['Patients'][patient]['Unit Type'] = 'General Ward'
+            data['Patients'][patient]['General Ward Arrival Time'] = clock  # track every move of this patient
 
             if state['General Ward Occupied Beds'] == 40:  # if there is no empty bed
                 # Queue length changes, so calculate the area under the current rectangle
@@ -585,6 +591,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
         elif 0.7 < crn <= 0.8:  # if the patient is sent to the ICU
 
             data['Patients'][patient]['Unit Type'] = 'ICU'
+            data['Patients'][patient]['ICU Arrival Time'] = clock  # track every move of this patient
 
             if state['ICU Occupied Beds'] == 10:  # if there is no empty bed
                 # Queue length changes, so calculate the area under the current rectangle
@@ -605,6 +612,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
         else:  # if the patient is sent to the CCU
 
             data['Patients'][patient]['Unit Type'] = 'CCU'
+            data['Patients'][patient]['CCU Arrival Time'] = clock  # track every move of this patient
 
             if state['CCU Occupied Beds'] == 5:  # if there is no empty bed
                 # Queue length changes, so calculate the area under the current rectangle
@@ -632,6 +640,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
             if random.random() <= 0.75:  # non-cardiac surgery
 
                 data['Patients'][patient]['Unit Type'] = 'ICU'
+                data['Patients'][patient]['ICU Arrival Time'] = clock  # track every move of this patient
 
                 if state['ICU Occupied Beds'] == 10:  # if there is no empty bed
                     # Queue length changes, so calculate the area under the current rectangle
@@ -652,6 +661,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
             else:  # cardiac surgery
 
                 data['Patients'][patient]['Unit Type'] = 'CCU'
+                data['Patients'][patient]['CCU Arrival Time'] = clock  # track every move of this patient
 
                 if state['CCU Occupied Beds'] == 5:  # if there is no empty bed
                     # Queue length changes, so calculate the area under the current rectangle
@@ -666,7 +676,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
                     
                 else:  # there is an empty bed
                     state['CCU Occupied Beds'] += 1
-                    data['Patients'][patient]['Time ICU Service Begins'] = clock  # track "every move" of this patient
+                    data['Patients'][patient]['Time CCU Service Begins'] = clock  # track "every move" of this patient
                     fel_maker(future_event_list, 'Care Unit Departure', clock,
                               patient)  # patient discharge from ICU or CCU
 
@@ -725,7 +735,7 @@ def care_unit_departure(future_event_list, state, clock, data, patient):
         fel_maker(future_event_list, 'Condition Deterioration', clock, patient)
 
     else:
-
+        data['Patients'][patient]['General Ward Arrival Time'] = clock  # track every move of this patient
         if state['General Ward Occupied Beds'] == 40:  # if there is no empty bed in the general ward
             # Queue length changes, so calculate the area under the current rectangle
             data['Cumulative Stats']['Area Under General Ward Queue Length Curve'] += \
@@ -804,7 +814,8 @@ def care_unit_departure(future_event_list, state, clock, data, patient):
 
 def condition_deterioration(future_event_list, state, clock, data, patient):
     data['Patients'][patient]['Patient Type'] = 'Urgent'  # the patient will be urgent
-
+    data['Patients'][patient]['Operation Arrival Time'] = clock  # track every move of this patient
+    
     if state['Operation Occupied Beds'] == 50:  # if there is no empty bed in the operation room
         # Queue length changes, so calculate the area under the current rectangle
         data['Cumulative Stats']['Area Under Surgery Urgent Queue Length Curve'] += \
