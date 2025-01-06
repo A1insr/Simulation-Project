@@ -708,7 +708,7 @@ def end_of_service(future_event_list, state, clock, data, patient):
     data['Patients'].pop(patient, None)
 
     if state['General Ward Queue'] == 0:  # if there is no patient in the queue
-        pass
+        state['General Ward Occupied Beds'] -= 1
 
     else:  # there is at least one patient in the queue
         state['General Ward Queue'] -= 1
