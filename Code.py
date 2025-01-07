@@ -55,6 +55,17 @@ def starting_state():
     data['ICU Queue Patients'] = dict()
     data['CCU Queue Patients'] = dict()
 
+    # Needed data to find maximum waiting time in each queue
+    data['Preoperative Queue Waiting Times'] = dict() 
+    data['Emergency Queue Waiting Times'] = dict()
+    data['Laboratory Normal Queue Waiting Times'] = dict()
+    data['Laboratory Urgent Queue Waiting Times'] = dict()
+    data['Operation Normal Queue Waiting Times'] = dict()
+    data['Operation Urgent Queue Waiting Times'] = dict()
+    data['General Ward Queue Waiting Times'] = dict()
+    data['ICU Queue Waiting Times'] = dict()
+    data['CCU Queue Waiting Times'] = dict()
+
     # Cumulative Stats
     data['Last Time Emergency Queue Length Changed'] = 0  # Needed to calculate probability of a full emergency queue
     data['Last Time Preoperative Queue Length Changed'] = 0
@@ -94,8 +105,10 @@ def starting_state():
 
     data['Cumulative Stats']['Emergency Service Starters'] = 0
     data['Cumulative Stats']['Preoperative Service Starters'] = 0
-    data['Cumulative Stats']['Laboratory Service Starters'] = 0
-    data['Cumulative Stats']['Operation Service Starters'] = 0
+    data['Cumulative Stats']['Laboratory Normal Service Starters'] = 0
+    data['Cumulative Stats']['Laboratory Urgent Service Starters'] = 0
+    data['Cumulative Stats']['Operation Normal Service Starters'] = 0
+    data['Cumulative Stats']['Operation Urgent Service Starters'] = 0
     data['Cumulative Stats']['General Ward Service Starters'] = 0
     data['Cumulative Stats']['ICU Service Starters'] = 0
     data['Cumulative Stats']['CCU Service Starters'] = 0
@@ -328,7 +341,7 @@ def laboratory_arrival(future_event_list, state, clock, data, patient):
         if state['Laboratory Occupied Beds'] < 3:  # if there is an empty bed
             state['Laboratory Occupied Beds'] += 1
             # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
-            data['Cumulative Stats']['Laboratory Service Starters'] += 1
+            data['Cumulative Stats']['Laboratory Normal Service Starters'] += 1
             data['Patients'][patient]['Time Laboratory Service Begins'] = clock  # track "every move" of this patient
             fel_maker(future_event_list, 'Laboratory Departure', clock, patient)
 
@@ -348,7 +361,7 @@ def laboratory_arrival(future_event_list, state, clock, data, patient):
         if state['Laboratory Occupied Beds'] < 3:  # if there is an empty bed
             state['Laboratory Occupied Beds'] += 1
             # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
-            data['Cumulative Stats']['Laboratory Service Starters'] += 1
+            data['Cumulative Stats']['Laboratory Urgent Service Starters'] += 1
             data['Patients'][patient]['Time Laboatory Service Begins'] = clock  # track "every move" of this patient
             fel_maker(future_event_list, 'Laboratory Departure', clock, patient)
 
@@ -402,13 +415,17 @@ def laboratory_departure(future_event_list, state, clock, data, patient):
             data['Laboratory Normal Queue Patients'].pop(first_patient_in_queue, None)
 
             # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
-            data['Cumulative Stats']['Laboratory Service Starters'] += 1
+            data['Cumulative Stats']['Laboratory Normal Service Starters'] += 1
             data['Patients'][first_patient_in_queue]['Time Laboratory Service Begins'] = clock  # track "every move" of this patient
 
             # Update queue waiting time
             data['Cumulative Stats']['Laboratory Normal Queue Waiting Time'] += \
                 (data['Patients'][first_patient_in_queue]['Time Laboratory Service Begins'] - \
                      data['Patients'][first_patient_in_queue]['Laboratory Arrival Time'])
+
+            # Save the waiting time
+            data['Laboratory Normal Queue Waiting Times'][first_patient_in_queue] =  (data['Patients'][first_patient_in_queue]['Time Laboratory Service Begins'] - \
+                data['Patients'][first_patient_in_queue]['Laboratory Arrival Time'])
             
             
             # Schedule 'End of Service' for this patient
@@ -430,13 +447,17 @@ def laboratory_departure(future_event_list, state, clock, data, patient):
         data['Laboratory Urgent Queue Patients'].pop(first_patient_in_queue, None)
 
         # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
-        data['Cumulative Stats']['Laboratory Service Starters'] += 1
+        data['Cumulative Stats']['Laboratory Urgent Service Starters'] += 1
         data['Patients'][first_patient_in_queue]['Time Laboratory Service Begins'] = clock  # track "every move" of this patient
 
         # Update queue waiting time
         data['Cumulative Stats']['Laboratory Urgent Queue Waiting Time'] += \
             (data['Patients'][first_patient_in_queue]['Time Laboratory Service Begins'] - \
                 data['Patients'][first_patient_in_queue]['Laboratory Arrival Time'])
+
+        # Save the waiting time
+        data['Laboratory Urgent Queue Waiting Times'][first_patient_in_queue] =  (data['Patients'][first_patient_in_queue]['Time Laboratory Service Begins'] - \
+            data['Patients'][first_patient_in_queue]['Laboratory Arrival Time'])
         
         # Schedule 'End of Service' for this patient
         fel_maker(future_event_list, 'Laboratory Departure', clock, first_patient_in_queue)
@@ -461,7 +482,7 @@ def operation_arrival(future_event_list, state, clock, data, patient):
         else:  # there is an empty bed
             state['Operation Occupied Beds'] += 1
             # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
-            data['Cumulative Stats']['Operation Service Starters'] += 1
+            data['Cumulative Stats']['Operation Normal Service Starters'] += 1
             data['Patients'][patient]['Time Operation Service Begins'] = clock  # track "every move" of this patient
             
             fel_maker(future_event_list, 'Operation Departure', clock, patient)
@@ -492,6 +513,10 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                 data['Cumulative Stats']['Preoperative Queue Waiting Time'] += \
                     (data['Patients'][first_patient_in_queue]['Time Preoperative Service Begins'] - \
                         data['Patients'][first_patient_in_queue]['Arrival Time'])
+
+                # Save the waiting time
+                data['Preoperative Queue Waiting Times'][first_patient_in_queue] = (data['Patients'][first_patient_in_queue]['Time Preoperative Service Begins'] - \
+                    data['Patients'][first_patient_in_queue]['Arrival Time'])
                 
                 # Schedule 'End of Service' for this patient
                 fel_maker(future_event_list, 'Laboratory Arrival', clock, first_patient_in_queue)
@@ -513,7 +538,7 @@ def operation_arrival(future_event_list, state, clock, data, patient):
         else:  # there is an empty bed
             state['Operation Occupied Beds'] += 1
             # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
-            data['Cumulative Stats']['Operation Service Starters'] += 1
+            data['Cumulative Stats']['Operation Normal Service Starters'] += 1
             data['Patients'][patient]['Time Operation Service Begins'] = clock  # track "every move" of this patient
             
             fel_maker(future_event_list, 'Operation Departure', clock, patient)
@@ -549,6 +574,10 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                         (data['Patients'][first_patient_in_queue]['Time Emergency Service Begins'] - \
                              data['Patients'][first_patient_in_queue]['Arrival Time'])
 
+                    # Save the waiting time
+                    data['Emergency Queue Waiting Times'][first_patient_in_queue] = (data['Patients'][first_patient_in_queue]['Time Emergency Service Begins'] - \
+                        data['Patients'][first_patient_in_queue]['Arrival Time'])
+
                     # Check whether the patient is addmitted immidiatley or not
                     if (clock-data['Patients'][first_patient_in_queue]['Arrival Time'] == 0):
                         # Update number of 'Number of Immediately Addmited Emergency Patients'
@@ -580,6 +609,10 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                     data['Cumulative Stats']['Emergency Queue Waiting Time'] += \
                         (data['Patients'][first_patient_in_queue]['Time Emergency Service Begins'] - \
                              data['Patients'][first_patient_in_queue]['Arrival Time'])
+
+                    # Save the waiting time
+                    data['Emergency Queue Waiting Times'][first_patient_in_queue] = (data['Patients'][first_patient_in_queue]['Time Emergency Service Begins'] - \
+                        data['Patients'][first_patient_in_queue]['Arrival Time'])
 
                     # Check whether the patient is addmitted immidiatley or not
                     if (clock-data['Patients'][first_patient_in_queue]['Arrival Time'] == 0):
@@ -763,13 +796,17 @@ def operation_departure(future_event_list, state, clock, data, patient):
             data['Surgery Normal Queue Patients'].pop(first_patient_in_queue, None)
 
             # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
-            data['Cumulative Stats']['Operation Service Starters'] += 1
+            data['Cumulative Stats']['Operation Normal Service Starters'] += 1
             data['Patients'][first_patient_in_queue]['Time Operation Service Begins'] = clock  # track "every move" of this patient
 
             # Update queue waiting time
-            data['Cumulative Stats']['Operation Queue Waiting Time'] += \
+            data['Cumulative Stats']['Operation Normal Queue Waiting Time'] += \
                 (data['Patients'][first_patient_in_queue]['Time Operation Service Begins'] - \
                     data['Patients'][first_patient_in_queue]['Operation Arrival Time'])
+
+            # Save the waiting time
+            data['Operation Normal Queue Waiting Times'][first_patient_in_queue] = (data['Patients'][first_patient_in_queue]['Time Operation Service Begins'] - \
+                data['Patients'][first_patient_in_queue]['Operation Arrival Time'])
             
             # Schedule 'End of Service' for this patient
             fel_maker(future_event_list, 'Operation Departure', clock, first_patient_in_queue)
@@ -790,13 +827,17 @@ def operation_departure(future_event_list, state, clock, data, patient):
         data['Surgery Urgent Queue Patients'].pop(first_patient_in_queue, None)
 
         # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
-        data['Cumulative Stats']['Operation Service Starters'] += 1
+        data['Cumulative Stats']['Operation Urgent Service Starters'] += 1
         data['Patients'][first_patient_in_queue]['Time Operation Service Begins'] = clock  # track "every move" of this patient
 
         # Update queue waiting time
-        data['Cumulative Stats']['Operation Queue Waiting Time'] += \
+        data['Cumulative Stats']['Operation Urgent Queue Waiting Time'] += \
             (data['Patients'][first_patient_in_queue]['Time Operation Service Begins'] - \
                 data['Patients'][first_patient_in_queue]['Operation Arrival Time'])
+
+        # Save the waiting time
+        data['Operation Urgent Queue Waiting Times'][first_patient_in_queue] = (data['Patients'][first_patient_in_queue]['Time Operation Service Begins'] - \
+            data['Patients'][first_patient_in_queue]['Operation Arrival Time'])
             
         
         # Schedule 'End of Service' for this patient
@@ -864,6 +905,10 @@ def care_unit_departure(future_event_list, state, clock, data, patient):
             data['Cumulative Stats']['ICU Queue Waiting Time'] += \
                 (data['Patients'][first_patient_in_queue]['Time ICU Service Begins'] - \
                     data['Patients'][first_patient_in_queue]['ICU Arrival Time'])
+
+            # Save the waiting time
+            data['ICU Queue Waiting Times'][first_patient_in_queue] = (data['Patients'][first_patient_in_queue]['Time ICU Service Begins'] - \
+                data['Patients'][first_patient_in_queue]['ICU Arrival Time'])
             
             # Schedule 'End of Service' for this patient
             fel_maker(future_event_list, 'Care Unit Departure', clock, first_patient_in_queue)
@@ -900,6 +945,10 @@ def care_unit_departure(future_event_list, state, clock, data, patient):
             data['Cumulative Stats']['CCU Queue Waiting Time'] += \
                 (data['Patients'][first_patient_in_queue]['Time CCU Service Begins'] - \
                     data['Patients'][first_patient_in_queue]['CCU Arrival Time'])
+
+            # Save the waiting time
+            data['CCU Queue Waiting Times'][first_patient_in_queue] = (data['Patients'][first_patient_in_queue]['Time CCU Service Begins'] - \
+                data['Patients'][first_patient_in_queue]['CCU Arrival Time'])
             
             # Schedule 'End of Service' for this patient
             fel_maker(future_event_list, 'Care Unit Departure', clock, first_patient_in_queue)
@@ -924,7 +973,7 @@ def condition_deterioration(future_event_list, state, clock, data, patient):
     else:  # there is an empty bed
         state['Operation Occupied Beds'] += 1
         # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
-        data['Cumulative Stats']['Operation Service Starters'] += 1
+        data['Cumulative Stats']['Operation Urgent Service Starters'] += 1
         data['Patients'][patient]['Time Operation Service Begins'] = clock  # track "every move" of this patient
         fel_maker(future_event_list, 'Operation Departure', clock, patient)
 
@@ -997,6 +1046,10 @@ def end_of_service(future_event_list, state, clock, data, patient):
         data['Cumulative Stats']['General Ward Queue Waiting Time'] += \
             (data['Patients'][first_patient_in_queue]['Time General Ward Service Begins'] - \
                 data['Patients'][first_patient_in_queue]['General Ward Arrival Time'])
+
+        # Save the waiting time
+        data['General Ward Queue Waiting Times'][first_patient_in_queue] = (data['Patients'][first_patient_in_queue]['Time General Ward Service Begins'] - \
+            data['Patients'][first_patient_in_queue]['General Ward Arrival Time'])
         
         # Schedule 'End of Service' for this patient
         fel_maker(future_event_list, 'End of Service', clock, first_patient_in_queue)
@@ -1233,10 +1286,10 @@ def simulation(simulation_time):
     # Average Waiting Time in each queue 
     Wq_Emergency = data['Cumulative Stats']['Emergency Queue Waiting Time'] / data['Cumulative Stats']['Emergency Service Starters'] 
     Wq_Preoperative = data['Cumulative Stats']['Preoperative Queue Waiting Time'] / data['Cumulative Stats']['Preoperative Service Starters'] 
-    Wq_Laboratory = (data['Cumulative Stats']['Laboratory Normal Queue Waiting Time'] + data['Cumulative Stats']['Laboratory Urgent Queue Waiting Time']) \
-        / data['Cumulative Stats']['Laboratory Service Starters'] 
-    Wq_Operation = (data['Cumulative Stats']['Operation Normal Queue Waiting Time'] + data['Cumulative Stats']['Operation Urgent Queue Waiting Time']) \
-        / data['Cumulative Stats']['Operation Service Starters'] 
+    Wq_Laboratory_Normal = data['Cumulative Stats']['Laboratory Normal Queue Waiting Time'] / data['Cumulative Stats']['Laboratory Normal Service Starters'] 
+    Wq_Laboratory_Urgent = data['Cumulative Stats']['Laboratory Urgent Queue Waiting Time'] / data['Cumulative Stats']['Laboratory Urgent Service Starters'] 
+    Wq_Operation_Normal = data['Cumulative Stats']['Operation Normal Queue Waiting Time'] / data['Cumulative Stats']['Operation Normal Service Starters']
+    Wq_Operation_Urgent = data['Cumulative Stats']['Operation Urgent Queue Waiting Time'] / data['Cumulative Stats']['Operation Urgent Service Starters']
     Wq_General_Ward = data['Cumulative Stats']['General Ward Queue Waiting Time'] / data['Cumulative Stats']['General Ward Service Starters'] 
     Wq_ICU = data['Cumulative Stats']['ICU Queue Waiting Time'] / data['Cumulative Stats']['ICU Service Starters'] 
     Wq_CCU = data['Cumulative Stats']['CCU Queue Waiting Time'] / data['Cumulative Stats']['CCU Service Starters'] 
