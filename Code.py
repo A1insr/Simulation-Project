@@ -1341,8 +1341,16 @@ def simulation(simulation_time):
     Max_Wq_CCU = max(data['CCU Queue Waiting Times'].values())
 
     # Maximum queue length for each queue
+    Max_Lq_Emergency = max(data['Emergency Queue Lengths'].values())
+    Max_Lq_Preoperative = max(data['Preoperative Queue Lengths'].values())
+    Max_Lq_Laboratory_Normal = max(data['Laboratory Normal Queue Lengths'].values())
+    Max_Lq_Laboratory_Urgent = max(data['Laboratory Urgent Queue Lengths'].values())
+    Max_Lq_Operation_Normal = max(data['Operation Normal Queue Lengths'].values())
+    Max_Lq_Operation_Urgent = max(data['Operation Urgent Queue Lengths'].values())
+    Max_Lq_General_Ward = max(data['General Ward Queue Lengths'].values())
+    Max_Lq_ICU = max(data['ICU Queue Lengths'].values())
+    Max_Lq_CCU = max(data['CCU Queue Lengths'].values())
     
-
     print(f'Lq = {Lq}')
     print(f'Wq = {Wq}')
     print(f'rho = {rho}')
