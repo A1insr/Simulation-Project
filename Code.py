@@ -66,6 +66,17 @@ def starting_state():
     data['ICU Queue Waiting Times'] = dict()
     data['CCU Queue Waiting Times'] = dict()
 
+    # Needed data to find maximum queue length for each queue
+    data['Preoperative Queue Lengths'] = dict() 
+    data['Emergency Queue Lengths'] = dict()
+    data['Laboratory Normal Queue Lengths'] = dict()
+    data['Laboratory Urgent Queue Lengths'] = dict()
+    data['Operation Normal Queue Lengths'] = dict()
+    data['Operation Urgent Queue Lengths'] = dict()
+    data['General Ward Queue Lengths'] = dict()
+    data['ICU Queue Lengths'] = dict()
+    data['CCU Queue Lengths'] = dict()
+
     # Cumulative Stats
     data['Last Time Emergency Queue Length Changed'] = 0  # Needed to calculate probability of a full emergency queue
     data['Last Time Preoperative Queue Length Changed'] = 0
@@ -228,6 +239,7 @@ def arrival(future_event_list, state, clock, data, patient):
             
             state['Preoperative Queue'] += 1
             data['Preoperative Queue Patients'][patient] = clock  # add this patient to the queue
+            data['Preoperative Queue Lengths'][clock] = state['Preoperative Queue'] # Save queue length 
 
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time Preoperative Queue Length Changed'] = clock
@@ -265,6 +277,7 @@ def arrival(future_event_list, state, clock, data, patient):
                     
                     state['Emergency Queue'] += 1
                     data['Emergency Queue Patients'][patient] = clock  # add this patient to the queue
+                    data['Emergency Queue Lengths'][clock] = state['Emergency Queue'] # Save queue length 
 
                     # Queue length just changed. Update 'Last Time Queue Length Changed'
                     data['Last Time Emergency Queue Length Changed'] = clock
@@ -352,6 +365,7 @@ def laboratory_arrival(future_event_list, state, clock, data, patient):
             
             state['Laboratory Normal Queue'] += 1
             data['Laboratory Normal Queue Patients'][patient] = clock  # add this patient to the queue
+            data['Laboratory Normal Queue Lengths'][clock] = state['Laboratory Normal Queue'] # Save queue length 
 
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time Laboratory Normal Queue Length Changed'] = clock
@@ -372,6 +386,7 @@ def laboratory_arrival(future_event_list, state, clock, data, patient):
             
             state['Laboratory Urgent Queue'] += 1
             data['Laboratory Urgent Queue Patients'][patient] = clock  # add this patient to the queue
+            data['Laboratory Urgent Queue Lengths'][clock] = state['Laboratory Urgent Queue'] # Save queue length 
 
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time Laboratory Urgent Queue Length Changed'] = clock
@@ -405,6 +420,7 @@ def laboratory_departure(future_event_list, state, clock, data, patient):
                 (clock - data['Last Time Laboratory Normal Queue Length Changed'])*(state['Laboratory Normal Queue'])
             
             state['Laboratory Normal Queue'] -= 1
+            data['Laboratory Normal Queue Lengths'][clock] = state['Laboratory Normal Queue'] # Save queue length 
                 
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time Laboratory Normal Queue Length Changed'] = clock
@@ -437,6 +453,7 @@ def laboratory_departure(future_event_list, state, clock, data, patient):
             (clock - data['Last Time Laboratory Urgent Queue Length Changed'])*(state['Laboratory Urgent Queue'])
         
         state['Laboratory Urgent Queue'] -= 1
+        data['Laboratory Urgent Queue Lengths'][clock] = state['Laboratory Urgent Queue'] # Save queue length 
 
         # Queue length just changed. Update 'Last Time Queue Length Changed'
         data['Last Time Laboratory Urgent Queue Length Changed'] = clock
@@ -475,6 +492,7 @@ def operation_arrival(future_event_list, state, clock, data, patient):
             
             state['Surgery Normal Queue'] += 1
             data['Surgery Normal Queue Patients'][patient] = clock  # add this patient to the queue
+            data['Operation Normal Queue Lengths'][clock] = state['Surgey Normal Queue'] # Save queue length 
 
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time Surgery Normal Queue Length Changed'] = clock
@@ -496,6 +514,7 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                     (clock - data['Last Time Preoperative Queue Length Changed'])*(state['Preoperative Queue'])
                 
                 state['Preoperative Queue'] -= 1
+                data['Preoperative Queue Lengths'][clock] = state['Preoperative Queue'] # Save queue length 
 
                 # Queue length just changed. Update 'Last Time Queue Length Changed'
                 data['Last Time Preoperative Queue Length Changed'] = clock
@@ -530,6 +549,7 @@ def operation_arrival(future_event_list, state, clock, data, patient):
             
             state['Surgery Urgent Queue'] += 1
             data['Surgery Urgent Queue Patients'][patient] = clock  # add this patient to the queue
+            data['Operation Urgent Queue Lengths'][clock] = state['Surgery Urgent Queue'] # Save queue length 
 
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time Surgery Urgent Queue Length Changed'] = clock
@@ -556,6 +576,7 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                         (clock - data['Last Time Emergency Queue Length Changed'])*(state['Emergency Queue'])
 
                     state['Emergency Queue'] -= 1
+                    data['Emergency Queue Lengths'][clock] = state['Emergency Queue'] # Save queue length
                     
                     # Queue length just changed. Update 'Last Time Queue Length Changed'
                     data['Last Time Emergency Queue Length Changed'] = clock
@@ -592,6 +613,7 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                         (clock - data['Last Time Emergency Queue Length Changed'])*(state['Emergency Queue'])
                      
                     state['Emergency Queue'] -= 1 
+                    data['Emergency Queue Lengths'][clock] = state['Emergency Queue'] # Save queue length
                     
                     # Queue length just changed. Update 'Last Time Queue Length Changed'
                     data['Last Time Emergency Queue Length Changed'] = clock
@@ -639,6 +661,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
             
             state['General Ward Queue'] += 1
             data['General Ward Queue Patients'][patient] = clock  # add this patient to the queue
+            data['General Ward Queue Lengths'][clock] = state['General Ward Queue'] # Save queue length
 
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time General Ward Queue Length Changed'] = clock
@@ -664,6 +687,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
                 
                 state['General Ward Queue'] += 1
                 data['General Ward Queue Patients'][patient] = clock  # add this patient to the queue
+                data['General Ward Queue Lengths'][clock] = state['General Ward Queue'] # Save queue length
 
                 # Queue length just changed. Update 'Last Time Queue Length Changed'
                 data['Last Time General Ward Queue Length Changed'] = clock
@@ -687,6 +711,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
                 
                 state['ICU Queue'] += 1
                 data['ICU Queue Patients'][patient] = clock  # add this patient to the queue
+                data['ICU Queue Lengths'][clock] = state['ICU Queue'] # Save queue length
 
                 # Queue length just changed. Update 'Last Time Queue Length Changed'
                 data['Last Time ICU Queue Length Changed'] = clock
@@ -710,6 +735,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
                 
                 state['CCU Queue'] += 1
                 data['CCU Queue Patients'][patient] = clock  # add this patient to the queue
+                data['CCU Queue Lengths'][clock] = state['CCU Queue'] # Save queue length
 
                 # Queue length just changed. Update 'Last Time Queue Length Changed'
                 data['Last Time CCU Queue Length Changed'] = clock
@@ -740,6 +766,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
                     
                     state['ICU Queue'] += 1
                     data['ICU Queue Patients'][patient] = clock  # add this patient to the queue
+                    data['ICU Queue Lengths'][clock] = state['ICU Queue'] # Save queue length
 
                     # Queue length just changed. Update 'Last Time Queue Length Changed'
                     data['Last Time ICU Queue Length Changed'] = clock
@@ -763,6 +790,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
                     
                     state['CCU Queue'] += 1
                     data['CCU Queue Patients'][patient] = clock  # add this patient to the queue
+                    data['CCU Queue Lengths'][clock] = state['CCU Queue'] # Save queue length
 
                     # Queue length just changed. Update 'Last Time Queue Length Changed'
                     data['Last Time CCU Queue Length Changed'] = clock
@@ -786,6 +814,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
                 (clock - data['Last Time Surgery Normal Queue Length Changed'])*(state['Surgery Normal Queue'])
 
             state['Surgery Normal Queue'] -= 1
+            data['Operation Normal Queue Lengths'][clock] = state['Surgery Normal Queue'] # Save queue length
             
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time Surgery Normal Queue Length Changed'] = clock
@@ -817,6 +846,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
             (clock - data['Last Time Surgery Urgent Queue Length Changed'])*(state['Surgery Urgent Queue'])
 
         state['Surgery Urgent Queue'] -= 1
+        data['Operation Urgent Queue Lengths'][clock] = state['Surgery Urgent Queue'] # Save queue length
         
         # Queue length just changed. Update 'Last Time Queue Length Changed'
         data['Last Time Surgery Urgent Queue Length Changed'] = clock
@@ -862,6 +892,7 @@ def care_unit_departure(future_event_list, state, clock, data, patient):
 
             state['General Ward Queue'] += 1
             data['General Ward Queue Patients'][patient] = clock  # add this patient to the queue
+            data['General Ward Queue Lengths'][clock] = state['General Ward Queue'] # Save queue length
 
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time General Ward Queue Length Changed'] = clock
@@ -888,6 +919,7 @@ def care_unit_departure(future_event_list, state, clock, data, patient):
                 (clock - data['Last Time ICU Queue Length Changed'])*(state['ICU Queue'])
     
             state['ICU Queue'] -= 1
+            data['ICU Queue Lengths'][clock] = state['ICU Queue'] # Save queue length
 
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time ICU Queue Length Changed'] = clock
@@ -928,6 +960,7 @@ def care_unit_departure(future_event_list, state, clock, data, patient):
                 (clock - data['Last Time CCU Queue Length Changed'])*(state['CCU Queue'])
             
             state['CCU Queue'] -= 1
+            data['CCU Queue Lengths'][clock] = state['CCU Queue'] # Save queue length
 
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time CCU Queue Length Changed'] = clock
@@ -965,6 +998,7 @@ def condition_deterioration(future_event_list, state, clock, data, patient):
             
         state['Surgery Urgent Queue'] += 1
         data['Surgery Urgent Queue Patients'][patient] = clock  # add this patient to the queue
+        data['Operation Urgent Queue Lengths'][clock] = state['Surgery Urgent Queue'] # Save queue length
 
         # Queue length just changed. Update 'Last Time Queue Length Changed'
         data['Last Time Surgery Urgent Queue Length Changed'] = clock
@@ -1029,6 +1063,7 @@ def end_of_service(future_event_list, state, clock, data, patient):
             (clock - data['Last Time General Ward Queue Length Changed'])*(state['General Ward Queue'])
             
         state['General Ward Queue'] -= 1
+        data['General Ward Queue Lengths'][clock] = state['General Ward Queue'] # Save queue length
 
         # Queue length just changed. Update 'Last Time Queue Length Changed'
         data['Last Time General Ward Queue Length Changed'] = clock
@@ -1294,6 +1329,19 @@ def simulation(simulation_time):
     Wq_ICU = data['Cumulative Stats']['ICU Queue Waiting Time'] / data['Cumulative Stats']['ICU Service Starters'] 
     Wq_CCU = data['Cumulative Stats']['CCU Queue Waiting Time'] / data['Cumulative Stats']['CCU Service Starters'] 
 
+    # Maximum waiting time in each queue
+    Max_Wq_Preoperative = max(data['Preoperative Queue Waiting Times'].values())
+    Max_Wq_Emergency = max(data['Emergency Queue Waiting Times'].values())
+    Max_Wq_Laboratory_Normal = max(data['Laboratory Normal Queue Waiting Times'].values())
+    Max_Wq_Laboratory_Urgent = max(data['Laboratory Urgent Queue Waiting Times'].values())
+    Max_Wq_Operation_Normal = max(data['Operation Normal Queue Waiting Times'].values())
+    Max_Wq_Operation_Urgent = max(data['Operation Urgent Queue Waiting Times'].values())
+    Max_Wq_General_Ward = max(data['General Ward Queue Waiting Times'].values())
+    Max_Wq_ICU = max(data['ICU Queue Waiting Times'].values())
+    Max_Wq_CCU = max(data['CCU Queue Waiting Times'].values())
+
+    # Maximum queue length for each queue
+    
 
     print(f'Lq = {Lq}')
     print(f'Wq = {Wq}')
