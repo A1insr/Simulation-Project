@@ -140,7 +140,7 @@ def starting_state():
 
     # Starting FEL
     future_event_list = list()
-    future_event_list.append({'Event Type': 'Arrival', 'Event Time': 0, 'Patient': 'P1'})
+    future_event_list.append({'Event Type': 'Arrival', 'Event Time': 0, 'Patient': 'P1', 'Patient Type': 'Normal'})
     # fel_maker(future_event_list, 'Arrival', 0)
     return state, future_event_list, data
 
@@ -164,52 +164,58 @@ def fel_maker(future_event_list, event_type, clock, data, patient=None):
     event_time = 0
 
     if event_type == 'Arrival':
-        if data['Patients'][patient]['Patient Type'] == 'Normal':
+        if random.random() <= 0.75:  # Normal Patient
+            patient_type = 'Normal'
             event_time = clock + exponential(1)
         else:
+            patient_type = 'Urgent'
             event_time = clock + exponential(1 / 4)
 
-    elif event_type == 'Laboratory Arrival':
-        if data['Patients'][patient]['Patient Type'] == 'Normal':
-            event_time = clock + 1
-        else:
-            event_time = clock + (10 / 60)
+        new_event = {'Event Type': event_type, 'Event Time': event_time, 'Patient': patient, 'Patient Type': patient_type}
+        future_event_list.append(new_event)
 
-    elif event_type == 'Laboratory Departure':
-        event_time = clock + uniform((28 / 60), (32 / 60))
+    else:
+        if event_type == 'Laboratory Arrival':
+            if data['Patients'][patient]['Patient Type'] == 'Normal':
+                event_time = clock + 1
+            else:
+                event_time = clock + (10 / 60)
 
-    elif event_type == 'Operation Arrival':
-        if data['Patients'][patient]['Patient Type'] == 'Normal':
-            event_time = clock + 48
-        else:
-            event_time = clock + triangular((5 / 60), (75 / 60), (100 / 60))
+        elif event_type == 'Laboratory Departure':
+            event_time = clock + uniform((28 / 60), (32 / 60))
 
-    elif event_type == 'Operation Departure':
-        if data['Patients'][patient]['Surgery Type'] == 'Simple':
-            event_time = clock + (10 / 60) + np.random.normal(loc=(30.22 / 60), scale=(math.sqrt(4.96) / 60))
-        elif data['Patients'][patient]['Surgery Type'] == 'Medium':
-            event_time = clock + (10 / 60) + np.random.normal(loc=(74.54 / 60), scale=(math.sqrt(9.53) / 60))
-        else:
-            event_time = clock + (10 / 60) + np.random.normal(loc=(242.03 / 60), scale=(math.sqrt(63.27) / 60))
+        elif event_type == 'Operation Arrival':
+            if data['Patients'][patient]['Patient Type'] == 'Normal':
+                event_time = clock + 48
+            else:
+                event_time = clock + triangular((5 / 60), (75 / 60), (100 / 60))
 
-    elif event_type == 'Condition Deterioration':
-        event_time = clock
+        elif event_type == 'Operation Departure':
+            if data['Patients'][patient]['Surgery Type'] == 'Simple':
+                event_time = clock + (10 / 60) + np.random.normal(loc=(30.22 / 60), scale=(math.sqrt(4.96) / 60))
+            elif data['Patients'][patient]['Surgery Type'] == 'Medium':
+                event_time = clock + (10 / 60) + np.random.normal(loc=(74.54 / 60), scale=(math.sqrt(9.53) / 60))
+            else:
+                event_time = clock + (10 / 60) + np.random.normal(loc=(242.03 / 60), scale=(math.sqrt(63.27) / 60))
 
-    elif event_type == 'Care Unit Departure':
-        event_time = clock + exponential(25)
+        elif event_type == 'Condition Deterioration':
+            event_time = clock
 
-    elif event_type == 'End of Service':
-        event_time = clock + exponential(50)
+        elif event_type == 'Care Unit Departure':
+            event_time = clock + exponential(25)
 
-    new_event = {'Event Type': event_type, 'Event Time': event_time, 'Patient': patient}
-    future_event_list.append(new_event)
+        elif event_type == 'End of Service':
+            event_time = clock + exponential(50)
+
+        new_event = {'Event Type': event_type, 'Event Time': event_time, 'Patient': patient}
+        future_event_list.append(new_event)
 
 
-def arrival(future_event_list, state, clock, data, patient):
+def arrival(future_event_list, state, clock, data, patient, patient_type):
     # data['Patients'][patient] = dict()
     # data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
 
-    if random.random() <= 0.75:  # Normal Patient
+    if patient_type == 'Normal':  # Normal Patient
         data['Patients'][patient] = dict()
         data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
         data['Patients'][patient]['Patient Type'] = 'Normal'
@@ -243,6 +249,9 @@ def arrival(future_event_list, state, clock, data, patient):
 
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time Preoperative Queue Length Changed'] = clock
+
+        next_patient = 'P' + str(int(patient[1:]) + 1)
+        fel_maker(future_event_list, 'Arrival', clock, data, next_patient)
 
     else:  # Urgent Patient
         if random.random() >= 0.005:  # if it's single entry
@@ -1244,7 +1253,8 @@ def simulation(simulation_time):
         patient = current_event['Patient']  # find the patient of that event
         if clock < simulation_time:  # if current_event['Event Type'] != 'End of Simulation'  (Same)
             if current_event['Event Type'] == 'Arrival':
-                arrival(future_event_list, state, clock, data, patient)
+                patient_type = current_event['Patient Type']  # find the patient type
+                arrival(future_event_list, state, clock, data, patient, patient_type)
 
             elif current_event['Event Type'] == 'Laboratory Arrival':
                 laboratory_arrival(future_event_list, state, clock, data, patient)
