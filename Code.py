@@ -909,8 +909,8 @@ def operation_departure(future_event_list, state, clock, data, patient):
 
 
 def care_unit_departure(future_event_list, state, clock, data, patient):
-
-    if random.random() <= 0.001:  # if the patient's condition worsens
+    # if the patient's condition worsens
+    if (data['Patients'][patient]['Surgery Type'] == 'Complex') & (random.random() <= 0.001):
 
         # Update number of 'Number of Repeated Operations For Patients With Complex Operation'
         data['Cumulative Stats']['Number of Repeated Operations For Patients With Complex Operation'] += 1
