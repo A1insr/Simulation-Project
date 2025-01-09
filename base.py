@@ -1266,7 +1266,7 @@ def simulation(simulation_time):
     # print_header()
     while clock < simulation_time:
         sorted_fel = sorted(future_event_list, key=lambda x: x['Event Time'])
-        print(sorted_fel, '\n')
+        # print(sorted_fel, '\n')
         # print(data)
         current_event = sorted_fel[0]  # find imminent event
         clock = current_event['Event Time']  # advance time
@@ -1541,52 +1541,53 @@ def simulation(simulation_time):
     # Max_Lq_General_Ward = max(data['General Ward Queue Lengths'].values())
     # Max_Lq_ICU = max(data['ICU Queue Lengths'].values())
     # Max_Lq_CCU = max(data['CCU Queue Lengths'].values())
+#%%
+    # print(f"The average time in the system is: {average_time_in_system}")
+    # print(f"The possibility that the emergency queue capacity is full is: {Full_Emergency_Queue_Probability}")
+    # print(
+    #     f"The average number of reoperations for patients with complex operations is: {average_complex_operation_reoperations}")
+    # print(
+    #     f"The percentage of emergency patients who are admitted immediately is: {immediately_admitted_emergency_patients_percentage}")
+    #
+    # print(f'rho_Emergency = {rho_Emergency}')
+    # print(f'rho_Preoperative = {rho_Preoperative}')
+    # print(f'rho_Laboratory = {rho_Laboratory}')
+    # print(f'rho_Operation = {rho_Operation}')
+    # print(f'rho_General_Ward = {rho_General_Ward}')
+    # print(f'rho_ICU = {rho_ICU}')
+    # print(f'rho_CCU = {rho_CCU}')
+    #
+    # print(f'Lq_Emergency = {Lq_Emergency}')
+    # print(f'Lq_Preoperative = {Lq_Preoperative}')
+    # print(f'Lq_Laboratory_Normal = {Lq_Laboratory_Normal}')
+    # print(f'Lq_Laboratory_Urgent = {Lq_Laboratory_Urgent}')
+    # print(f'Lq_Operation_Normal = {Lq_Operation_Normal}')
+    # print(f'Lq_Operation_Urgent = {Lq_Operation_Urgent}')
+    # print(f'Lq_General_Ward = {Lq_General_Ward}')
+    # print(f'Lq_ICU = {Lq_ICU}')
+    # print(f'Lq_CCU = {Lq_CCU}')
+    #
+    # print(f'Max_Lq_Emergency = {Max_Lq_Emergency}')
+    # print(f'Max_Lq_Preoperative = {Max_Lq_Preoperative}')
+    # print(f'Max_Lq_Laboratory_Normal = {Max_Lq_Laboratory_Normal}')
+    # print(f'Max_Lq_Laboratory_Urgent = {Max_Lq_Laboratory_Urgent}')
+    # print(f'Max_Lq_Operation_Normal = {Max_Lq_Operation_Normal}')
+    # print(f'Max_Lq_Operation_Urgent = {Max_Lq_Operation_Urgent}')
+    # print(f'Max_Lq_General_Ward = {Max_Lq_General_Ward}')
+    # print(f'Max_Lq_ICU = {Max_Lq_ICU}')
+    # print(f'Max_Lq_CCU = {Max_Lq_CCU}')
+    #
+    # print(f'Max_Wq_Emergency = {Max_Wq_Emergency}')
+    # print(f'Max_Wq_Preoperative = {Max_Wq_Preoperative}')
+    # print(f'Max_Wq_Laboratory_Normal = {Max_Wq_Laboratory_Normal}')
+    # print(f'Max_Wq_Laboratory_Urgent = {Max_Wq_Laboratory_Urgent}')
+    # print(f'Max_Wq_Operation_Normal = {Max_Wq_Operation_Normal}')
+    # print(f'Max_Wq_Operation_Urgent = {Max_Wq_Operation_Urgent}')
+    # print(f'Max_Wq_General_Ward = {Max_Wq_General_Ward}')
+    # print(f'Max_Wq_ICU = {Max_Wq_ICU}')
+    # print(f'Max_Wq_CCU = {Max_Wq_CCU}')
 
-    print(f"The average time in the system is: {average_time_in_system}")
-    print(f"The possibility that the emergency queue capacity is full is: {Full_Emergency_Queue_Probability}")
-    print(
-        f"The average number of reoperations for patients with complex operations is: {average_complex_operation_reoperations}")
-    print(
-        f"The percentage of emergency patients who are admitted immediately is: {immediately_admitted_emergency_patients_percentage}")
-
-    print(f'rho_Emergency = {rho_Emergency}')
-    print(f'rho_Preoperative = {rho_Preoperative}')
-    print(f'rho_Laboratory = {rho_Laboratory}')
-    print(f'rho_Operation = {rho_Operation}')
-    print(f'rho_General_Ward = {rho_General_Ward}')
-    print(f'rho_ICU = {rho_ICU}')
-    print(f'rho_CCU = {rho_CCU}')
-
-    print(f'Lq_Emergency = {Lq_Emergency}')
-    print(f'Lq_Preoperative = {Lq_Preoperative}')
-    print(f'Lq_Laboratory_Normal = {Lq_Laboratory_Normal}')
-    print(f'Lq_Laboratory_Urgent = {Lq_Laboratory_Urgent}')
-    print(f'Lq_Operation_Normal = {Lq_Operation_Normal}')
-    print(f'Lq_Operation_Urgent = {Lq_Operation_Urgent}')
-    print(f'Lq_General_Ward = {Lq_General_Ward}')
-    print(f'Lq_ICU = {Lq_ICU}')
-    print(f'Lq_CCU = {Lq_CCU}')
-
-    print(f'Max_Lq_Emergency = {Max_Lq_Emergency}')
-    print(f'Max_Lq_Preoperative = {Max_Lq_Preoperative}')
-    print(f'Max_Lq_Laboratory_Normal = {Max_Lq_Laboratory_Normal}')
-    print(f'Max_Lq_Laboratory_Urgent = {Max_Lq_Laboratory_Urgent}')
-    print(f'Max_Lq_Operation_Normal = {Max_Lq_Operation_Normal}')
-    print(f'Max_Lq_Operation_Urgent = {Max_Lq_Operation_Urgent}')
-    print(f'Max_Lq_General_Ward = {Max_Lq_General_Ward}')
-    print(f'Max_Lq_ICU = {Max_Lq_ICU}')
-    print(f'Max_Lq_CCU = {Max_Lq_CCU}')
-
-    print(f'Max_Wq_Emergency = {Max_Wq_Emergency}')
-    print(f'Max_Wq_Preoperative = {Max_Wq_Preoperative}')
-    print(f'Max_Wq_Laboratory_Normal = {Max_Wq_Laboratory_Normal}')
-    print(f'Max_Wq_Laboratory_Urgent = {Max_Wq_Laboratory_Urgent}')
-    print(f'Max_Wq_Operation_Normal = {Max_Wq_Operation_Normal}')
-    print(f'Max_Wq_Operation_Urgent = {Max_Wq_Operation_Urgent}')
-    print(f'Max_Wq_General_Ward = {Max_Wq_General_Ward}')
-    print(f'Max_Wq_ICU = {Max_Wq_ICU}')
-    print(f'Max_Wq_CCU = {Max_Wq_CCU}')
-
+#%%
     # print(f'Lq = {Lq}')
     # print(f'Wq = {Wq}')
     # print(f'rho = {rho}')
@@ -1603,5 +1604,8 @@ def simulation(simulation_time):
 
     return data['Results']
 
-
+# data = simulation(720)
+# d = dict()
+# for key in (data.keys()):
+#     d[key] = [1, 2]
 # result = simulation(720)
