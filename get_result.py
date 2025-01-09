@@ -47,5 +47,4 @@ def replication(simulation_time=30 * 24, r=15, alpha=0.05):
     return results
 
 # Example usage
-dd = replication(r=20)
-# print(dd)
+result = replication()

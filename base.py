@@ -1,20 +1,64 @@
 """
-Hospital Simulation
+**Hospital Simulation**
+
+Description:
+    This simulation models the operation of a hospital with multiple departments, including preoperative,
+    emergency, laboratory, surgery, general ward, ICU, and CCU. The model uses discrete-event simulation to
+    analyze patient flow, service times, queue lengths, and utilization across the hospital.
+
 Input Distributions:
-    1- Entering population: poisson with mean = 3 people per hour
-        (Inter-arrival time: Exponential with mean = 20 minutes)
-    2- Service time: uniform(10, 25) minutes
-No limits on queue length
-People get served based on a FIFO discipline
+    1. **Patient Arrivals**:
+        - Arrival Process: Patients arrive according to a Poisson distribution with a mean of 3 people per hour.
+        - Inter-arrival Time: Modeled as an exponential distribution with a mean of 20 minutes.
+
+    2. **Service Times**:
+        - Preoperative Service: Uniform distribution, between 10 and 25 minutes.
+        - Laboratory Service: Exponential with rates depending on normal or urgent status.
+        - Surgery:
+            - Simple surgery: Normally distributed with a mean of 30.22 minutes and variance of 4.96.
+            - Medium surgery: Normally distributed with a mean of 74.54 minutes and variance of 9.53.
+            - Complex surgery: Normally distributed with a mean of 242.03 minutes and variance of 63.27.
+        - ICU and CCU Length of Stay: Exponentially distributed with a mean of 25 hours.
+
+    3. **Queue Policies**:
+        - Emergency Queue: Limited to a maximum of 10 patients.
+        - All other queues: No limit on queue lengths.
+        - FIFO (First-In, First-Out) is the default discipline unless urgent priority is specified.
+
+System Properties:
+    - The system starts in an empty state with no occupied beds or patients in the queue.
+    - The hospital has fixed capacities for departments:
+        - ICU: 10 beds
+        - CCU: 5 beds
+        - General Ward: 40 beds
+        - Laboratory: 3 beds
+        - Surgery Rooms: 50 beds
+        - Emergency Beds: 10 beds
+    - Power outages may temporarily reduce the system's capacity to 80%.
+
 Outputs:
-    1-
-    2-
-    3-
-System starts at an empty state
+    1. **Performance Metrics**:
+        - Average time spent in the system per patient.
+        - Probability of the emergency queue being full.
+        - Average number of reoperations for patients with complex surgeries.
+        - Percentage of emergency patients admitted immediately.
+
+    2. **Utilization Rates (ρ)**:
+        - Emergency, Preoperative, Laboratory, Surgery, General Ward, ICU, and CCU.
+
+    3. **Queue Statistics**:
+        - Average queue lengths (Lq) for:
+            - Emergency, Preoperative, Laboratory Normal, Laboratory Urgent,
+              Surgery Normal, Surgery Urgent.
+
+    4. **Other Results**:
+        - Average waiting time in each queue.
+        - Total system throughput during the simulation period.
 
 Authors: Arman Maghsoudi & Ali Nasr
 Date: Winter 2025
 """
+
 
 import random
 import math
@@ -289,7 +333,7 @@ def arrival(future_event_list, state, clock, data, patient, patient_type):
                     data['Cumulative Stats']['Patients With Complex Surgery'] += 1
 
                 if state['Emergency Occupied Beds'] == 10:  # if there is no empty bed
-                    print('f')
+                    # print('f')
                     # Queue length changes, so calculate the area under the current rectangle
                     data['Cumulative Stats']['Area Under Emergency Queue Length Curve'] += \
                         (clock - data['Last Time Emergency Queue Length Changed']) * (state['Emergency Queue'])
@@ -305,7 +349,7 @@ def arrival(future_event_list, state, clock, data, patient, patient_type):
                     state['Emergency Occupied Beds'] += 1
                     # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
                     data['Cumulative Stats']['Emergency Service Starters'] += 1
-                    print('a')
+                    # print('a')
                     data['Patients'][patient][
                         'Time Emergency Service Begins'] = clock  # track "every move" of this patient
 
@@ -351,7 +395,7 @@ def arrival(future_event_list, state, clock, data, patient, patient_type):
                     state['Emergency Occupied Beds'] += 1
                     # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
                     data['Cumulative Stats']['Emergency Service Starters'] += 1
-                    print('b')
+                    # print('b')
 
                     fel_maker(future_event_list, 'Laboratory Arrival', clock + (i * epsilon), data,
                               'P' + str(int(patient[1:]) + i))
@@ -585,7 +629,7 @@ def operation_arrival(future_event_list, state, clock, data, patient):
                 state['Emergency Occupied Beds'] -= 1
 
             else:  # there is at least one patient in the emergency queue
-                print('e')
+                # print('e')
                 if state['Emergency Queue'] == 10:
                     # Queue length changes, so at this moment we can calculate the time that the queue was full
                     data['Cumulative Stats']['Full Emergency Queue Duration'] += clock - data[
@@ -608,7 +652,7 @@ def operation_arrival(future_event_list, state, clock, data, patient):
 
                     # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
                     data['Cumulative Stats']['Emergency Service Starters'] += 1
-                    print('c')
+                    # print('c')
                     data['Patients'][first_patient_in_queue][
                         'Time Emergency Service Begins'] = clock  # track "every move" of this patient
 
@@ -648,7 +692,7 @@ def operation_arrival(future_event_list, state, clock, data, patient):
 
                     # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
                     data['Cumulative Stats']['Emergency Service Starters'] += 1
-                    print('d')
+                    # print('d')
                     data['Patients'][first_patient_in_queue][
                         'Time Emergency Service Begins'] = clock  # track "every move" of this patient
 
@@ -1312,13 +1356,13 @@ def simulation(simulation_time):
         table.append(create_row(step, current_event, state, data, future_event_list))
         step += 1
         # nice_print(state, current_event)
-    print('-------------------------------------------------------------------------------------------------')
+    # print('-------------------------------------------------------------------------------------------------')
 
     excel_main_header = create_main_header(state, data)
     justify(table)
     create_excel(table, excel_main_header)
 
-    print('Simulation Ended!\n')
+    # print('Simulation Ended!\n')
     # Lq = data['Cumulative Stats']['Area Under Queue Length Curve'] / simulation_time
     # Wq = data['Cumulative Stats']['Queue Waiting Time'] / data['Cumulative Stats']['Service Starters']
     # rho = data['Cumulative Stats']['Server Busy Time'] / simulation_time
