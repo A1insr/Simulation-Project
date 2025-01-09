@@ -353,10 +353,9 @@ def arrival(future_event_list, state, clock, data, patient, patient_type):
                     fel_maker(future_event_list, 'Laboratory Arrival', clock + (i * epsilon), data,
                               'P' + str(int(patient[1:]) + i))
 
-            else:  # there aren't enough empty beds
-                # patient refusal
-                next_patient = 'P' + str(int(patient[1:]) + GroupNumber)
-                fel_maker(future_event_list, 'Arrival', clock, data, next_patient)
+
+            next_patient = 'P' + str(int(patient[1:]) + GroupNumber)
+            fel_maker(future_event_list, 'Arrival', clock, data, next_patient)
 
     # crn = random.random()
     # if crn <= 0.5:  # Simple Surgery
@@ -910,7 +909,7 @@ def operation_departure(future_event_list, state, clock, data, patient):
 
 def care_unit_departure(future_event_list, state, clock, data, patient):
     # if the patient's condition worsens
-    if (data['Patients'][patient]['Surgery Type'] == 'Complex') & (random.random() <= 0.001):
+    if (data['Patients'][patient]['Surgery Type'] == 'Complex') & (random.random() <= 0.01):
 
         # Update number of 'Number of Repeated Operations For Patients With Complex Operation'
         data['Cumulative Stats']['Number of Repeated Operations For Patients With Complex Operation'] += 1
@@ -1468,4 +1467,4 @@ def simulation(simulation_time):
     #     print('Well... Almost!')
 
 
-simulation(2000)
+simulation(720)
