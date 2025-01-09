@@ -179,7 +179,7 @@ def fel_maker(future_event_list, event_type, clock, data, patient=None):
         new_event = {'Event Type': event_type, 'Event Time': event_time, 'Patient': patient, 'Patient Type': patient_type}
         future_event_list.append(new_event)
 
-    elif event_type == 'Power on':
+    elif event_type == 'Power On':
         event_time = clock + 24  # one day of power outage
 
         new_event = {'Event Type': event_type, 'Event Time': event_time, 'Patient': None}
@@ -415,6 +415,7 @@ def laboratory_arrival(future_event_list, state, clock, data, patient):
 
             # Queue length just changed. Update 'Last Time Queue Length Changed'
             data['Last Time Laboratory Urgent Queue Length Changed'] = clock
+
 
 def laboratory_departure(future_event_list, state, clock, data, patient):
     fel_maker(future_event_list, 'Operation Arrival', clock, data, patient)
