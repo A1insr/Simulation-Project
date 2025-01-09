@@ -1388,7 +1388,51 @@ def simulation(simulation_time):
     Wq_CCU = data['Cumulative Stats']['CCU Queue Waiting Time'] / data['Cumulative Stats']['CCU Service Starters']
 
     # Maximum waiting time in each queue
-    Max_Wq_Preoperative = max(data['Preoperative Queue Waiting Times'].values())
+    if data['Preoperative Queue Waiting Times'].values():
+      Max_Wq_Preoperative = max(data['Preoperative Queue Waiting Times'].values())
+    else: 
+      Max_Wq_Preoperative = 0
+    
+    if data['Emergency Queue Waiting Times'].values():
+      Max_Wq_Emergency = max(data['Emergency Queue Waiting Times'].values())
+    else: 
+      Max_Wq_Emergency = 0
+
+    if data['Laboratory Normal Queue Waiting Times'].values():
+      Max_Wq_Laboratory_Normal = max(data['Laboratory Normal Queue Waiting Times'].values())
+    else: 
+      Max_Wq_Laboratory_Normal = 0
+
+    if data['Laboratory Urgent Queue Waiting Times'].values():
+      Max_Wq_Laboratory_Urgent = max(data['Laboratory Urgent Queue Waiting Times'].values())
+    else: 
+      Max_Wq_Laboratory_Urgent = 0
+
+    if data['Operation Normal Queue Waiting Times'].values():
+      Max_Wq_Operation_Normal = max(data['Operation Normal Queue Waiting Times'].values())
+    else: 
+      Max_Wq_Operation_Normal = 0
+    
+    if data['Operation Urgent Queue Waiting Times'].values():
+      Max_Wq_Operation_Urgent = max(data['Operation Urgent Queue Waiting Times'].values())
+    else: 
+      Max_Wq_Operation_Urgent = 0
+
+    if data['General Ward Queue Waiting Times'].values():
+      Max_Wq_General_Ward = max(data['General Ward Queue Waiting Times'].values())
+    else: 
+      Max_Wq_General_Ward = 0
+
+    if data['ICU Queue Waiting Times'].values():
+      Max_Wq_ICU = max(data['ICU Queue Waiting Times'].values())
+    else: 
+      Max_Wq_ICU = 0
+
+    if data['CCU Queue Waiting Times'].values():
+      Max_Wq_CCU = max(data['CCU Queue Waiting Times'].values())
+    else: 
+      Max_Wq_CCU = 0
+    
     # Max_Wq_Emergency = max(data['Emergency Queue Waiting Times'].values())
     # Max_Wq_Laboratory_Normal = max(data['Laboratory Normal Queue Waiting Times'].values())
     # Max_Wq_Laboratory_Urgent = max(data['Laboratory Urgent Queue Waiting Times'].values())
@@ -1399,8 +1443,53 @@ def simulation(simulation_time):
     # Max_Wq_CCU = max(data['CCU Queue Waiting Times'].values())
 
     # Maximum queue length for each queue
+    if data['Preoperative Queue Lengths'].values():
+      Max_Lq_Preoperative = max(data['Preoperative Queue Lengths'].values())
+    else: 
+      Max_Lq_Preoperative = 0
+    
+    if data['Emergency Queue Lengths'].values():
+      Max_Lq_Emergency = max(data['Emergency Queue Lengths'].values())
+    else: 
+      Max_Lq_Emergency = 0
+
+    if data['Laboratory Normal Queue Lengths'].values():
+      Max_Lq_Laboratory_Normal = max(data['Laboratory Normal Queue Lengths'].values())
+    else: 
+      Max_Lq_Laboratory_Normal = 0
+
+    if data['Laboratory Urgent Queue Lengths'].values():
+      Max_Lq_Laboratory_Urgent = max(data['Laboratory Urgent Queue Lengths'].values())
+    else: 
+      Max_Lq_Laboratory_Urgent = 0
+
+    if data['Operation Normal Queue Lengths'].values():
+      Max_Lq_Operation_Normal = max(data['Operation Normal Queue Lengths'].values())
+    else: 
+      Max_Lq_Operation_Normal = 0
+    
+    if data['Operation Urgent Queue Lengths'].values():
+      Max_Lq_Operation_Urgent = max(data['Operation Urgent Queue Lengths'].values())
+    else: 
+      Max_Lq_Operation_Urgent = 0
+
+    if data['General Ward Queue Lengths'].values():
+      Max_Lq_General_Ward = max(data['General Ward Queue Lengths'].values())
+    else: 
+      Max_Lq_General_Ward = 0
+
+    if data['ICU Queue Lengths'].values():
+      Max_Lq_ICU = max(data['ICU Queue Lengths'].values())
+    else: 
+      Max_Lq_ICU = 0
+
+    if data['CCU Queue Lengths'].values():
+      Max_Lq_CCU = max(data['CCU Queue Lengths'].values())
+    else: 
+      Max_Lq_CCU = 0
+    
     # Max_Lq_Emergency = max(data['Emergency Queue Lengths'].values())
-    Max_Lq_Preoperative = max(data['Preoperative Queue Lengths'].values())
+    # Max_Lq_Preoperative = max(data['Preoperative Queue Lengths'].values())
     # Max_Lq_Laboratory_Normal = max(data['Laboratory Normal Queue Lengths'].values())
     # Max_Lq_Laboratory_Urgent = max(data['Laboratory Urgent Queue Lengths'].values())
     # Max_Lq_Operation_Normal = max(data['Operation Normal Queue Lengths'].values())
@@ -1408,6 +1497,7 @@ def simulation(simulation_time):
     # Max_Lq_General_Ward = max(data['General Ward Queue Lengths'].values())
     # Max_Lq_ICU = max(data['ICU Queue Lengths'].values())
     # Max_Lq_CCU = max(data['CCU Queue Lengths'].values())
+
 
     print(f"The average time in the system is: {average_time_in_system}")
     print(f"The possibility that the emergency queue capacity is full is: {Full_Emergency_Queue_Probability}")
@@ -1432,26 +1522,26 @@ def simulation(simulation_time):
     print(f'Lq_ICU = {Lq_ICU}')
     print(f'Lq_CCU = {Lq_CCU}')
 
-    # print(f'Max_Lq_Emergency = {Max_Lq_Emergency}')
+    print(f'Max_Lq_Emergency = {Max_Lq_Emergency}')
     print(f'Max_Lq_Preoperative = {Max_Lq_Preoperative}')
-    # print(f'Max_Lq_Laboratory_Normal = {Max_Lq_Laboratory_Normal}')
-    # print(f'Max_Lq_Laboratory_Urgent = {Max_Lq_Laboratory_Urgent}')
-    # print(f'Max_Lq_Operation_Normal = {Max_Lq_Operation_Normal}')
-    # print(f'Max_Lq_Operation_Urgent = {Max_Lq_Operation_Urgent}')
-    # print(f'Max_Lq_General_Ward = {Max_Lq_General_Ward}')
-    # print(f'Max_Lq_ICU = {Max_Lq_ICU}')
-    # print(f'Max_Lq_CCU = {Max_Lq_CCU}')
+    print(f'Max_Lq_Laboratory_Normal = {Max_Lq_Laboratory_Normal}')
+    print(f'Max_Lq_Laboratory_Urgent = {Max_Lq_Laboratory_Urgent}')
+    print(f'Max_Lq_Operation_Normal = {Max_Lq_Operation_Normal}')
+    print(f'Max_Lq_Operation_Urgent = {Max_Lq_Operation_Urgent}')
+    print(f'Max_Lq_General_Ward = {Max_Lq_General_Ward}')
+    print(f'Max_Lq_ICU = {Max_Lq_ICU}')
+    print(f'Max_Lq_CCU = {Max_Lq_CCU}')
 
-    # print(f'Max_Wq_Emergency = {Max_Wq_Emergency}')
+    print(f'Max_Wq_Emergency = {Max_Wq_Emergency}')
     print(f'Max_Wq_Preoperative = {Max_Wq_Preoperative}')
-    # print(f'Max_Wq_Laboratory_Normal = {Max_Wq_Laboratory_Normal}')
-    # print(f'Max_Wq_Laboratory_Urgent = {Max_Wq_Laboratory_Urgent}')
-    # print(f'Max_Wq_Operation_Normal = {Max_Wq_Operation_Normal}')
-    # print(f'Max_Wq_Operation_Urgent = {Max_Wq_Operation_Urgent}')
-    # print(f'Max_Wq_General_Ward = {Max_Wq_General_Ward}')
-    # print(f'Max_Wq_ICU = {Max_Wq_ICU}')
-    # print(f'Max_Wq_CCU = {Max_Wq_CCU}')
-
+    print(f'Max_Wq_Laboratory_Normal = {Max_Wq_Laboratory_Normal}')
+    print(f'Max_Wq_Laboratory_Urgent = {Max_Wq_Laboratory_Urgent}')
+    print(f'Max_Wq_Operation_Normal = {Max_Wq_Operation_Normal}')
+    print(f'Max_Wq_Operation_Urgent = {Max_Wq_Operation_Urgent}')
+    print(f'Max_Wq_General_Ward = {Max_Wq_General_Ward}')
+    print(f'Max_Wq_ICU = {Max_Wq_ICU}')
+    print(f'Max_Wq_CCU = {Max_Wq_CCU}')
+    
     # print(f'Lq = {Lq}')
     # print(f'Wq = {Wq}')
     # print(f'rho = {rho}')
