@@ -254,20 +254,28 @@ def fel_maker(future_event_list, event_type, clock, data, param, patient=None):
 
         elif event_type == 'Operation Departure':
             if data['Patients'][patient]['Surgery Type'] == 'Simple':
-                event_time = clock + (10 / 60) + np.random.normal(loc=(30.22 / 60), scale=(math.sqrt(4.96) / 60))
+                # event_time = clock + (10 / 60) + np.random.normal(loc=(30.22 / 60), scale=(math.sqrt(4.96) / 60))
+                event_time = clock + (10 / 60) + np.random.normal(loc=(param['Simple Operation Mean'] / 60),
+                                                                  scale=(math.sqrt(param['Simple Operation Var']) / 60))
             elif data['Patients'][patient]['Surgery Type'] == 'Medium':
-                event_time = clock + (10 / 60) + np.random.normal(loc=(74.54 / 60), scale=(math.sqrt(9.53) / 60))
+                # event_time = clock + (10 / 60) + np.random.normal(loc=(74.54 / 60), scale=(math.sqrt(9.53) / 60))
+                event_time = clock + (10 / 60) + np.random.normal(loc=(param['Medium Operation Mean'] / 60),
+                                                                  scale=(math.sqrt(param['Medium Operation Var']) / 60))
             else:
-                event_time = clock + (10 / 60) + np.random.normal(loc=(242.03 / 60), scale=(math.sqrt(63.27) / 60))
+                # event_time = clock + (10 / 60) + np.random.normal(loc=(242.03 / 60), scale=(math.sqrt(63.27) / 60))
+                event_time = clock + (10 / 60) + np.random.normal(loc=(param['Complex Operation Mean'] / 60),
+                                                                  scale=(math.sqrt(param['Complex Operation Var']) / 60))
 
         elif event_type == 'Condition Deterioration':
             event_time = clock
 
         elif event_type == 'Care Unit Departure':
-            event_time = clock + exponential(25)
+            # event_time = clock + exponential(25)
+            event_time = clock + exponential(param['Care Unit Exp Param'])
 
         elif event_type == 'End of Service':
-            event_time = clock + exponential(50)
+            # event_time = clock + exponential(50)
+            event_time = clock + exponential(param['End of Service Exp Param'])
 
         new_event = {'Event Type': event_type, 'Event Time': event_time, 'Patient': patient}
         future_event_list.append(new_event)
@@ -1726,25 +1734,33 @@ def simulation(simulation_time, param, excel_creation=False):
 
 # simulation(200, excel_creation=True)
 
-param = {
-    'Preoperative Capacity': 25,
-    'Emergency Capacity': 10,
-    'Emergency Queue Capacity': 10,
-    'Laboratory Capacity': 3,
-    'Operation Capacity': 50,
-    'General Ward Capacity': 40,
-    'ICU Capacity': 10,
-    'CCU Capacity': 5,
-    'Normal Inter Exp Param': 1,
-    'Urgent Inter Exp Param': (1 / 4),
-    'Normal Laboratory Param': 1,
-    'Urgent Laboratory Param': (10 / 60),
-    'After Laboratory Uni a Param': (28 / 60),
-    'After Laboratory Uni b Param': (32 / 60),
-    'Normal Operation Param': 48,
-    'Urgent Operation trgl LB Param': (5 / 60),
-    'Urgent Operation trgl M Param': (75 / 60),
-    'Urgent Operation trgl UB Param': (100 / 60)
-}
+# param = {
+#     'Preoperative Capacity': 25,
+#     'Emergency Capacity': 10,
+#     'Emergency Queue Capacity': 10,
+#     'Laboratory Capacity': 3,
+#     'Operation Capacity': 50,
+#     'General Ward Capacity': 40,
+#     'ICU Capacity': 10,
+#     'CCU Capacity': 5,
+#     'Normal Inter Exp Param': 1,
+#     'Urgent Inter Exp Param': (1 / 4),
+#     'Normal Laboratory Param': 1,
+#     'Urgent Laboratory Param': (10 / 60),
+#     'After Laboratory Uni a Param': (28 / 60),
+#     'After Laboratory Uni b Param': (32 / 60),
+#     'Normal Operation Param': 48,
+#     'Urgent Operation trgl LB Param': (5 / 60),
+#     'Urgent Operation trgl M Param': (75 / 60),
+#     'Urgent Operation trgl UB Param': (100 / 60),
+#     'Simple Operation Mean': 30.22,
+#     'Simple Operation Var': 4.96,
+#     'Medium Operation Mean': 74.54,
+#     'Medium Operation Var': 9.53,
+#     'Complex Operation Mean': 242.03,
+#     'Complex Operation Var': 63.27,
+#     'Care Unit Exp Param': 25,
+#     'End of Service Exp Param': 50
+#     }
 
-dat = simulation(100, param)
+# ae = simulation(100, param)
