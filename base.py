@@ -1370,8 +1370,11 @@ def simulation(simulation_time, excel_creation=False):
     # rho = data['Cumulative Stats']['Server Busy Time'] / simulation_time
 
     # Criteria_1
-    average_time_in_system = data['Cumulative Stats']['System Waiting Time'] / data['Cumulative Stats'][
-        'Total Patients']
+    if data['Cumulative Stats']['Total Patients'] == 0: # avoiding division by zero error
+         average_time_in_system = 0
+    else:
+        average_time_in_system = data['Cumulative Stats']['System Waiting Time'] / data['Cumulative Stats'][
+            'Total Patients']
     data['Results']['average_time_in_system'] = average_time_in_system
 
     # Criteria_2
@@ -1379,15 +1382,21 @@ def simulation(simulation_time, excel_creation=False):
     data['Results']['Full_Emergency_Queue_Probability'] = Full_Emergency_Queue_Probability
 
     # Criteria_3
-    average_complex_operation_reoperations = data['Cumulative Stats'][
-                                                 'Number of Repeated Operations For Patients With Complex Operation'] \
-                                             / data['Cumulative Stats']['Patients With Complex Surgery']
+    if data['Cumulative Stats']['Patients With Complex Surgery'] == 0: # avoiding division by zero error
+        average_complex_operation_reoperations = 0
+    else: 
+        average_complex_operation_reoperations = data['Cumulative Stats'][
+                                                     'Number of Repeated Operations For Patients With Complex Operation'] \
+                                                 / data['Cumulative Stats']['Patients With Complex Surgery']
     data['Results']['average_complex_operation_reoperations'] = average_complex_operation_reoperations
 
     # Criteria_6
-    immediately_admitted_emergency_patients_percentage = (data['Cumulative Stats'][
-                                                              'Number of Immediately Admitted Emergency Patients'] \
-                                                          / data['Cumulative Stats']['Emergency Patients']) * 100
+    if data['Cumulative Stats']['Emergency Patients'] == 0: # avoiding division by zero error
+        immediately_admitted_emergency_patients_percentage = 0
+    else:
+        immediately_admitted_emergency_patients_percentage = (data['Cumulative Stats'][
+                                                                  'Number of Immediately Admitted Emergency Patients'] \
+                                                              / data['Cumulative Stats']['Emergency Patients']) * 100
     data['Results']['immediately_admitted_emergency_patients_percentage'] = immediately_admitted_emergency_patients_percentage
 
     # Criteria_5
@@ -1442,22 +1451,57 @@ def simulation(simulation_time, excel_creation=False):
     data['Results']['Lq_CCU'] = Lq_CCU
 
     # Average Waiting Time in each queue
-    Wq_Emergency = data['Cumulative Stats']['Emergency Queue Waiting Time'] / data['Cumulative Stats'][
-        'Emergency Service Starters']
-    Wq_Preoperative = data['Cumulative Stats']['Preoperative Queue Waiting Time'] / data['Cumulative Stats'][
-        'Preoperative Service Starters']
-    Wq_Laboratory_Normal = data['Cumulative Stats']['Laboratory Normal Queue Waiting Time'] / data['Cumulative Stats'][
-        'Laboratory Normal Service Starters']
-    Wq_Laboratory_Urgent = data['Cumulative Stats']['Laboratory Urgent Queue Waiting Time'] / data['Cumulative Stats'][
-        'Laboratory Urgent Service Starters']
-    Wq_Operation_Normal = data['Cumulative Stats']['Operation Normal Queue Waiting Time'] / data['Cumulative Stats'][
-        'Operation Normal Service Starters']
-    Wq_Operation_Urgent = data['Cumulative Stats']['Operation Urgent Queue Waiting Time'] / data['Cumulative Stats'][
-        'Operation Urgent Service Starters']
-    Wq_General_Ward = data['Cumulative Stats']['General Ward Queue Waiting Time'] / data['Cumulative Stats'][
-        'General Ward Service Starters']
-    Wq_ICU = data['Cumulative Stats']['ICU Queue Waiting Time'] / data['Cumulative Stats']['ICU Service Starters']
-    Wq_CCU = data['Cumulative Stats']['CCU Queue Waiting Time'] / data['Cumulative Stats']['CCU Service Starters']
+    if data['Cumulative Stats']['Emergency Service Starters'] == 0: # avoiding division by zero error
+        Wq_Emergency = 0
+    else:
+        Wq_Emergency = data['Cumulative Stats']['Emergency Queue Waiting Time'] / data['Cumulative Stats'][
+            'Emergency Service Starters']
+        
+    if data['Cumulative Stats']['Preoperative Service Starters'] == 0: # avoiding division by zero error
+        Wq_Preoperative = 0
+    else:        
+        Wq_Preoperative = data['Cumulative Stats']['Preoperative Queue Waiting Time'] / data['Cumulative Stats'][
+            'Preoperative Service Starters']
+        
+    if data['Cumulative Stats']['Laboratory Normal Service Starters'] == 0: # avoiding division by zero error
+        Wq_Laboratory_Normal = 0
+    else: 
+        Wq_Laboratory_Normal = data['Cumulative Stats']['Laboratory Normal Queue Waiting Time'] / data['Cumulative Stats'][
+            'Laboratory Normal Service Starters']
+        
+    if data['Cumulative Stats']['Laboratory Urgent Service Starters'] == 0: # avoiding division by zero error
+        Wq_Laboratory_Urgent = 0
+    else:   
+        Wq_Laboratory_Urgent = data['Cumulative Stats']['Laboratory Urgent Queue Waiting Time'] / data['Cumulative Stats'][
+            'Laboratory Urgent Service Starters']
+        
+    if data['Cumulative Stats']['Operation Normal Service Starters'] == 0: # avoiding division by zero error
+        Wq_Operation_Normal = 0
+    else:     
+        Wq_Operation_Normal = data['Cumulative Stats']['Operation Normal Queue Waiting Time'] / data['Cumulative Stats'][
+            'Operation Normal Service Starters']
+        
+    if data['Cumulative Stats']['Operation Urgent Service Starters'] == 0: # avoiding division by zero error
+        Wq_Operation_Urgent = 0
+    else:        
+        Wq_Operation_Urgent = data['Cumulative Stats']['Operation Urgent Queue Waiting Time'] / data['Cumulative Stats'][
+            'Operation Urgent Service Starters']
+        
+    if data['Cumulative Stats']['General Ward Service Starters'] == 0: # avoiding division by zero error
+        Wq_General_Ward = 0
+    else:     
+        Wq_General_Ward = data['Cumulative Stats']['General Ward Queue Waiting Time'] / data['Cumulative Stats'][
+            'General Ward Service Starters']
+        
+    if data['Cumulative Stats']['ICU Service Starters'] == 0: # avoiding division by zero error
+        Wq_ICU = 0
+    else:
+        Wq_ICU = data['Cumulative Stats']['ICU Queue Waiting Time'] / data['Cumulative Stats']['ICU Service Starters']
+
+    if data['Cumulative Stats']['CCU Service Starters'] == 0: # avoiding division by zero error
+        Wq_CCU = 0
+    else:
+        Wq_CCU = data['Cumulative Stats']['CCU Queue Waiting Time'] / data['Cumulative Stats']['CCU Service Starters']
 
     # Maximum waiting time in each queue
     if data['Preoperative Queue Waiting Times'].values():
@@ -1612,6 +1656,16 @@ def simulation(simulation_time, excel_creation=False):
     # print(f'Lq_General_Ward = {Lq_General_Ward}')
     # print(f'Lq_ICU = {Lq_ICU}')
     # print(f'Lq_CCU = {Lq_CCU}')
+    #
+    # print(f'Wq_Emergency = {Wq_Emergency}')
+    # print(f'Wq_Preoperative = {Wq_Preoperative}')
+    # print(f'Wq_Laboratory_Normal = {Wq_Laboratory_Normal}')
+    # print(f'Wq_Laboratory_Urgent = {Wq_Laboratory_Urgent}')
+    # print(f'Wq_Operation_Normal = {Wq_Operation_Normal}')
+    # print(f'Wq_Operation_Urgent = {Wq_Operation_Urgent}')
+    # print(f'Wq_General_Ward = {Wq_General_Ward}')
+    # print(f'Wq_ICU = {Wq_ICU}')
+    # print(f'Wq_CCU = {Wq_CCU}')
     #
     # print(f'Max_Lq_Emergency = {Max_Lq_Emergency}')
     # print(f'Max_Lq_Preoperative = {Max_Lq_Preoperative}')
