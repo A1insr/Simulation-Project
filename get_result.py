@@ -1,5 +1,4 @@
 
-
 import base
 import pandas as pd
 import numpy as np
@@ -20,8 +19,8 @@ original_param = {
     'General Ward Capacity': 40,
     'ICU Capacity': 10,
     'CCU Capacity': 5,
-    'Normal Inter Exp Param': 1,
-    'Urgent Inter Exp Param': (1 / 4),
+    'Normal Arrival Exp Param': 1,
+    'Urgent Arrival Exp Param': (1 / 4),
     'Normal Laboratory Param': 1,
     'Urgent Laboratory Param': (10 / 60),
     'After Laboratory Uni a Param': (28 / 60),
@@ -185,9 +184,9 @@ def replication(simulation_time, r, param, alpha):
         for mean, ci in zip(means, ci_half_width)
     ]
 
-    # Save the results DataFrame as an Excel file
+    # Save the results DataFrame as an Excel file (including row names)
     file_name = "simulation_results.xlsx"
-    results.to_excel(file_name, sheet_name="Replication Results", index=False)
+    results.to_excel(file_name, sheet_name="Replication Results", index=True)
     print(f"Results saved to {file_name}")
 
     # Load the Excel file to apply formatting using openpyxl
@@ -211,7 +210,7 @@ def replication(simulation_time, r, param, alpha):
         for cell in col:
             try:
                 if len(str(cell.value)) > max_length:
-                    max_length = len(cell.value)
+                    max_length = len(str(cell.value))
             except:
                 pass
         adjusted_width = (max_length + 2)  # Adding a bit of padding
@@ -219,11 +218,11 @@ def replication(simulation_time, r, param, alpha):
 
     # Apply color to the last two columns (Point Estimate and Confidence Interval)
     fill_color = PatternFill(start_color="FFFF99", end_color="FFFF99", fill_type="solid")
-    last_column = len(results.columns) - 2  # Index for "Point Estimate" column
-    second_last_column = len(results.columns) - 1  # Index for "Confidence Interval" column
+    last_column = len(results.columns) + 1  # Account for the index being included
+    second_last_column = len(results.columns)  # Adjusted for index
 
     # Color the last two columns
-    for row in sheet.iter_rows(min_col=last_column + 1, max_col=second_last_column + 1):
+    for row in sheet.iter_rows(min_col=second_last_column, max_col=last_column):
         for cell in row:
             cell.fill = fill_color
 
@@ -316,12 +315,12 @@ def multi_sensitivity_analysis_with_individual_plots(simulation_time, param, ana
 analyses = [
     {
         'metric': 'average_time_in_system',
-        'parameter_name': 'Normal Inter Exp Param',
+        'parameter_name': 'Normal Arrival Exp Param',
         'parameter_values': np.linspace(0.1, 7, 15)
     },
     {
         'metric': 'Lq_Preoperative',
-        'parameter_name': 'Normal Inter Exp Param',
+        'parameter_name': 'Normal Arrival Exp Param',
         'parameter_values': np.linspace(0.1, 7, 15)
     },
     {

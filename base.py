@@ -216,10 +216,10 @@ def fel_maker(future_event_list, event_type, clock, data, param, patient=None):
     if event_type == 'Arrival':
         if random.random() <= 0.75:  # Normal Patient
             patient_type = 'Normal'
-            event_time = clock + exponential(param['Normal Inter Exp Param'])
+            event_time = clock + exponential(param['Normal Arrival Exp Param'])
         else:  # Urgent patient
             patient_type = 'Urgent'
-            event_time = clock + exponential(param['Urgent Inter Exp Param'])
+            event_time = clock + exponential(param['Urgent Arrival Exp Param'])
 
         new_event = {'Event Type': event_type, 'Event Time': event_time, 'Patient': patient,
                      'Patient Type': patient_type}
