@@ -1382,7 +1382,7 @@ def simulation(simulation_time, excel_creation=False):
     data['Results']['Full_Emergency_Queue_Probability'] = Full_Emergency_Queue_Probability
 
     # Criteria_3
-    if data['Cumulative Stats']['Patients With Complex Surgery'] == 0: # avoiding division by zero error
+    if data['Cumulative Stats']['Patients With Complex Surgery'] == 0:  # avoiding division by zero error
         average_complex_operation_reoperations = 0
     else: 
         average_complex_operation_reoperations = data['Cumulative Stats'][
@@ -1391,7 +1391,7 @@ def simulation(simulation_time, excel_creation=False):
     data['Results']['average_complex_operation_reoperations'] = average_complex_operation_reoperations
 
     # Criteria_6
-    if data['Cumulative Stats']['Emergency Patients'] == 0: # avoiding division by zero error
+    if data['Cumulative Stats']['Emergency Patients'] == 0:  # avoiding division by zero error
         immediately_admitted_emergency_patients_percentage = 0
     else:
         immediately_admitted_emergency_patients_percentage = (data['Cumulative Stats'][
@@ -1720,3 +1720,6 @@ def simulation(simulation_time, excel_creation=False):
 # result = simulation(720)
 
 # simulation(200, excel_creation=True)
+
+dat = simulation(100)
+dat['Wq_Emergency']

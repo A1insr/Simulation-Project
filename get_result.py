@@ -51,6 +51,17 @@ def run_simulation(simulation_time=30 * 24):
     print(f'Max_Lq_ICU = {simulation['Max_Lq_ICU']}')
     print(f'Max_Lq_CCU = {simulation['Max_Lq_CCU']}')
 
+    print('\nAverage waiting time in queues in different hospital departments:')
+    print(f'Wq_Emergency = {simulation['Wq_Emergency']}')
+    print(f'Wq_Preoperative = {simulation['Wq_Preoperative']}')
+    print(f'Wq_Laboratory_Normal = {simulation['Wq_Laboratory_Normal']}')
+    print(f'Wq_Laboratory_Urgent = {simulation['Wq_Laboratory_Urgent']}')
+    print(f'Wq_Operation_Normal = {simulation['Wq_Operation_Normal']}')
+    print(f'Wq_Operation_Urgent = {simulation['Wq_Operation_Urgent']}')
+    print(f'Wq_General_Ward = {simulation['Wq_General_Ward']}')
+    print(f'Wq_ICU = {simulation['Wq_ICU']}')
+    print(f'Wq_CCU = {simulation['Wq_CCU']}')
+
     print('\nMaximum waiting time in queues in different hospital departments:')
     print(f'Max_Wq_Emergency = {simulation['Max_Wq_Emergency']}')
     print(f'Max_Wq_Preoperative = {simulation['Max_Wq_Preoperative']}')
