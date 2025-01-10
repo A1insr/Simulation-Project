@@ -1369,18 +1369,11 @@ def simulation(simulation_time, param, excel_creation=False):
         # create a row in the table
         table.append(create_row(step, current_event, state, data, future_event_list))
         step += 1
-        # nice_print(state, current_event)
-    # print('-------------------------------------------------------------------------------------------------')
 
     if excel_creation:
         excel_main_header = create_main_header(state, data)
         justify(table)
         create_excel(table, excel_main_header)
-
-    # print('Simulation Ended!\n')
-    # Lq = data['Cumulative Stats']['Area Under Queue Length Curve'] / simulation_time
-    # Wq = data['Cumulative Stats']['Queue Waiting Time'] / data['Cumulative Stats']['Service Starters']
-    # rho = data['Cumulative Stats']['Server Busy Time'] / simulation_time
 
     # Criteria_1
     if data['Cumulative Stats']['Total Patients'] == 0:  # avoiding division by zero error
@@ -1580,15 +1573,6 @@ def simulation(simulation_time, param, excel_creation=False):
         Max_Wq_CCU = 0
     data['Results']['Max_Wq_CCU'] = Max_Wq_CCU
 
-    # Max_Wq_Emergency = max(data['Emergency Queue Waiting Times'].values())
-    # Max_Wq_Laboratory_Normal = max(data['Laboratory Normal Queue Waiting Times'].values())
-    # Max_Wq_Laboratory_Urgent = max(data['Laboratory Urgent Queue Waiting Times'].values())
-    # Max_Wq_Operation_Normal = max(data['Operation Normal Queue Waiting Times'].values())
-    # Max_Wq_Operation_Urgent = max(data['Operation Urgent Queue Waiting Times'].values())
-    # Max_Wq_General_Ward = max(data['General Ward Queue Waiting Times'].values())
-    # Max_Wq_ICU = max(data['ICU Queue Waiting Times'].values())
-    # Max_Wq_CCU = max(data['CCU Queue Waiting Times'].values())
-
     # Maximum queue length for each queue
     if data['Preoperative Queue Lengths'].values():
         Max_Lq_Preoperative = max(data['Preoperative Queue Lengths'].values())
@@ -1644,123 +1628,6 @@ def simulation(simulation_time, param, excel_creation=False):
         Max_Lq_CCU = 0
     data['Results']['Max_Lq_CCU'] = Max_Lq_CCU
 
-    # Max_Lq_Emergency = max(data['Emergency Queue Lengths'].values())
-    # Max_Lq_Preoperative = max(data['Preoperative Queue Lengths'].values())
-    # Max_Lq_Laboratory_Normal = max(data['Laboratory Normal Queue Lengths'].values())
-    # Max_Lq_Laboratory_Urgent = max(data['Laboratory Urgent Queue Lengths'].values())
-    # Max_Lq_Operation_Normal = max(data['Operation Normal Queue Lengths'].values())
-    # Max_Lq_Operation_Urgent = max(data['Operation Urgent Queue Lengths'].values())
-    # Max_Lq_General_Ward = max(data['General Ward Queue Lengths'].values())
-    # Max_Lq_ICU = max(data['ICU Queue Lengths'].values())
-    # Max_Lq_CCU = max(data['CCU Queue Lengths'].values())
-#%%
-    # print(f"The average time in the system is: {average_time_in_system}")
-    # print(f"The possibility that the emergency queue capacity is full is: {Full_Emergency_Queue_Probability}")
-    # print(
-    #     f"The average number of reoperations for patients with complex operations is: {average_complex_operation_reoperations}")
-    # print(
-    #     f"The percentage of emergency patients who are admitted immediately is: {immediately_admitted_emergency_patients_percentage}")
-    #
-    # print(f'rho_Emergency = {rho_Emergency}')
-    # print(f'rho_Preoperative = {rho_Preoperative}')
-    # print(f'rho_Laboratory = {rho_Laboratory}')
-    # print(f'rho_Operation = {rho_Operation}')
-    # print(f'rho_General_Ward = {rho_General_Ward}')
-    # print(f'rho_ICU = {rho_ICU}')
-    # print(f'rho_CCU = {rho_CCU}')
-    #
-    # print(f'Lq_Emergency = {Lq_Emergency}')
-    # print(f'Lq_Preoperative = {Lq_Preoperative}')
-    # print(f'Lq_Laboratory_Normal = {Lq_Laboratory_Normal}')
-    # print(f'Lq_Laboratory_Urgent = {Lq_Laboratory_Urgent}')
-    # print(f'Lq_Operation_Normal = {Lq_Operation_Normal}')
-    # print(f'Lq_Operation_Urgent = {Lq_Operation_Urgent}')
-    # print(f'Lq_General_Ward = {Lq_General_Ward}')
-    # print(f'Lq_ICU = {Lq_ICU}')
-    # print(f'Lq_CCU = {Lq_CCU}')
-    #
-    # print(f'Wq_Emergency = {Wq_Emergency}')
-    # print(f'Wq_Preoperative = {Wq_Preoperative}')
-    # print(f'Wq_Laboratory_Normal = {Wq_Laboratory_Normal}')
-    # print(f'Wq_Laboratory_Urgent = {Wq_Laboratory_Urgent}')
-    # print(f'Wq_Operation_Normal = {Wq_Operation_Normal}')
-    # print(f'Wq_Operation_Urgent = {Wq_Operation_Urgent}')
-    # print(f'Wq_General_Ward = {Wq_General_Ward}')
-    # print(f'Wq_ICU = {Wq_ICU}')
-    # print(f'Wq_CCU = {Wq_CCU}')
-    #
-    # print(f'Max_Lq_Emergency = {Max_Lq_Emergency}')
-    # print(f'Max_Lq_Preoperative = {Max_Lq_Preoperative}')
-    # print(f'Max_Lq_Laboratory_Normal = {Max_Lq_Laboratory_Normal}')
-    # print(f'Max_Lq_Laboratory_Urgent = {Max_Lq_Laboratory_Urgent}')
-    # print(f'Max_Lq_Operation_Normal = {Max_Lq_Operation_Normal}')
-    # print(f'Max_Lq_Operation_Urgent = {Max_Lq_Operation_Urgent}')
-    # print(f'Max_Lq_General_Ward = {Max_Lq_General_Ward}')
-    # print(f'Max_Lq_ICU = {Max_Lq_ICU}')
-    # print(f'Max_Lq_CCU = {Max_Lq_CCU}')
-    #
-    # print(f'Max_Wq_Emergency = {Max_Wq_Emergency}')
-    # print(f'Max_Wq_Preoperative = {Max_Wq_Preoperative}')
-    # print(f'Max_Wq_Laboratory_Normal = {Max_Wq_Laboratory_Normal}')
-    # print(f'Max_Wq_Laboratory_Urgent = {Max_Wq_Laboratory_Urgent}')
-    # print(f'Max_Wq_Operation_Normal = {Max_Wq_Operation_Normal}')
-    # print(f'Max_Wq_Operation_Urgent = {Max_Wq_Operation_Urgent}')
-    # print(f'Max_Wq_General_Ward = {Max_Wq_General_Ward}')
-    # print(f'Max_Wq_ICU = {Max_Wq_ICU}')
-    # print(f'Max_Wq_CCU = {Max_Wq_CCU}')
-
-#%%
-    # print(f'Lq = {Lq}')
-    # print(f'Wq = {Wq}')
-    # print(f'rho = {rho}')
-
-    # print("\nChecking Little's Law")
-    # print(f'Lq = {Lq}')
-    # print(f'lambda * Wq = {(1 / 20) * Wq}')
-
-    # print('\nDo they match?')
-    # print(f'Ratio: {Lq / ((1 / 20) * Wq)}')
-
-    # if 0.9 < Lq / ((1 / 20) * Wq) < 1.1:
-    #     print('Well... Almost!')
 
     return data['Results']
 
-# data = simulation(720)
-# d = dict()
-# for key in (data.keys()):
-#     prin
-# result = simulation(720)
-
-# simulation(200, excel_creation=True)
-
-# param = {
-#     'Preoperative Capacity': 25,
-#     'Emergency Capacity': 10,
-#     'Emergency Queue Capacity': 10,
-#     'Laboratory Capacity': 3,
-#     'Operation Capacity': 50,
-#     'General Ward Capacity': 40,
-#     'ICU Capacity': 10,
-#     'CCU Capacity': 5,
-#     'Normal Inter Exp Param': 1,
-#     'Urgent Inter Exp Param': (1 / 4),
-#     'Normal Laboratory Param': 1,
-#     'Urgent Laboratory Param': (10 / 60),
-#     'After Laboratory Uni a Param': (28 / 60),
-#     'After Laboratory Uni b Param': (32 / 60),
-#     'Normal Operation Param': 48,
-#     'Urgent Operation trgl LB Param': (5 / 60),
-#     'Urgent Operation trgl M Param': (75 / 60),
-#     'Urgent Operation trgl UB Param': (100 / 60),
-#     'Simple Operation Mean': 30.22,
-#     'Simple Operation Var': 4.96,
-#     'Medium Operation Mean': 74.54,
-#     'Medium Operation Var': 9.53,
-#     'Complex Operation Mean': 242.03,
-#     'Complex Operation Var': 63.27,
-#     'Care Unit Exp Param': 25,
-#     'End of Service Exp Param': 50
-#     }
-
-# ae = simulation(100, param)
