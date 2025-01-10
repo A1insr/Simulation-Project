@@ -1300,11 +1300,12 @@ def get_col_widths(dataframe):
     return [idx_max] + [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
 
 
-def simulation(simulation_time):
+def simulation(simulation_time, excel_creation=False):
     state, future_event_list, data = starting_state()
     clock = 0
     table = []  # a list of lists. Each inner list will be a row in the Excel output.
     step = 1  # every event counts as a step.
+    # one day of power outage per month.
     future_event_list.append({'Event Type': 'Power Off', 'Event Time': uniform(0, 720), 'Patient': None})
     future_event_list.append({'Event Type': 'End of Simulation', 'Event Time': simulation_time, 'Patient': None})
     # print_header()
@@ -1358,9 +1359,10 @@ def simulation(simulation_time):
         # nice_print(state, current_event)
     # print('-------------------------------------------------------------------------------------------------')
 
-    excel_main_header = create_main_header(state, data)
-    justify(table)
-    create_excel(table, excel_main_header)
+    if excel_creation:
+        excel_main_header = create_main_header(state, data)
+        justify(table)
+        create_excel(table, excel_main_header)
 
     # print('Simulation Ended!\n')
     # Lq = data['Cumulative Stats']['Area Under Queue Length Curve'] / simulation_time
@@ -1651,5 +1653,7 @@ def simulation(simulation_time):
 # data = simulation(720)
 # d = dict()
 # for key in (data.keys()):
-#     d[key] = [1, 2]
+#     prin
 # result = simulation(720)
+
+# simulation(200, excel_creation=True)
