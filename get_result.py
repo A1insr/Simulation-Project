@@ -20,7 +20,7 @@ original_param = {
     'ICU Capacity': 10,
     'CCU Capacity': 5,
     'Normal Arrival Exp Param': 1,
-    'Urgent Arrival Exp Param': (1 / 4),
+    'Urgent Arrival Exp Param': 4,
     'Normal Laboratory Param': 1,
     'Urgent Laboratory Param': (10 / 60),
     'After Laboratory Uni a Param': (28 / 60),
@@ -30,13 +30,13 @@ original_param = {
     'Urgent Operation trgl M Param': (75 / 60),
     'Urgent Operation trgl UB Param': (100 / 60),
     'Simple Operation Mean': 30.22,
-    'Simple Operation Var': 4.96,
+    'Simple Operation SD': 4.96,
     'Medium Operation Mean': 74.54,
-    'Medium Operation Var': 9.53,
+    'Medium Operation SD': 9.53,
     'Complex Operation Mean': 242.03,
-    'Complex Operation Var': 63.27,
-    'Care Unit Exp Param': 25,
-    'End of Service Exp Param': 50
+    'Complex Operation SD': 63.27,
+    'Care Unit Exp Param': (1 / 25),
+    'End of Service Exp Param': (1 / 50)
 }
 
 

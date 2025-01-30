@@ -194,7 +194,7 @@ def starting_state(param: dict):
     future_event_list.append({'Event Type': 'Arrival', 'Event Time': 0, 'Patient': 'P1', 'Patient Type': 'Normal'})
     return state, future_event_list, data
 
-
+exponential(4)
 def exponential(lambd):
     r = random.random()
     return -(1 / lambd) * math.log(r)
@@ -256,15 +256,15 @@ def fel_maker(future_event_list, event_type, clock, data, param, patient=None):
             if data['Patients'][patient]['Surgery Type'] == 'Simple':
                 # event_time = clock + (10 / 60) + np.random.normal(loc=(30.22 / 60), scale=(math.sqrt(4.96) / 60))
                 event_time = clock + (10 / 60) + np.random.normal(loc=(param['Simple Operation Mean'] / 60),
-                                                                  scale=(math.sqrt(param['Simple Operation Var']) / 60))
+                                                                  scale=(param['Simple Operation SD'] / 60))
             elif data['Patients'][patient]['Surgery Type'] == 'Medium':
                 # event_time = clock + (10 / 60) + np.random.normal(loc=(74.54 / 60), scale=(math.sqrt(9.53) / 60))
                 event_time = clock + (10 / 60) + np.random.normal(loc=(param['Medium Operation Mean'] / 60),
-                                                                  scale=(math.sqrt(param['Medium Operation Var']) / 60))
+                                                                  scale=(param['Medium Operation SD'] / 60))
             else:
                 # event_time = clock + (10 / 60) + np.random.normal(loc=(242.03 / 60), scale=(math.sqrt(63.27) / 60))
                 event_time = clock + (10 / 60) + np.random.normal(loc=(param['Complex Operation Mean'] / 60),
-                                                                  scale=(math.sqrt(param['Complex Operation Var']) / 60))
+                                                                  scale=(param['Complex Operation SD'] / 60))
 
         elif event_type == 'Condition Deterioration':
             event_time = clock
