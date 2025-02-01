@@ -512,19 +512,19 @@ def laboratory_arrival(future_event_list, state, param, clock, data, patient):
 def laboratory_departure(future_event_list, state, param, clock, data, patient):
     fel_maker(future_event_list, 'Operation Arrival', clock, data, param, patient)
 
-    if data['Patients'][patient]['Patient Type'] == 'Normal':  # if the patient is normal
+    # if data['Patients'][patient]['Patient Type'] == 'Normal':  # if the patient is normal
         # End of Preoperative Service Update Server Busy Time
-        data['Cumulative Stats']['Preoperative Server Busy Time'] += (clock - data['Patients'][patient][
-            'Time Preoperative Service Begins']) * (state['Preoperative Occupied Beds'] / param['Preoperative Capacity'])
+    #     data['Cumulative Stats']['Preoperative Server Busy Time'] += (clock - data['Patients'][patient][
+    #        'Time Preoperative Service Begins']) * (state['Preoperative Occupied Beds'] / param['Preoperative Capacity'])
 
-    else:  # if the patient is urgent
-        # End of Emergency Service Update Server Busy Time
-        data['Cumulative Stats']['Emergency Server Busy Time'] += (clock - data['Patients'][patient][
-            'Time Emergency Service Begins']) * (state['Emergency Occupied Beds'] / param['Emergency Capacity'])
+    # else:  # if the patient is urgent
+    #    # End of Emergency Service Update Server Busy Time
+    #    data['Cumulative Stats']['Emergency Server Busy Time'] += (clock - data['Patients'][patient][
+    #        'Time Emergency Service Begins']) * (state['Emergency Occupied Beds'] / param['Emergency Capacity'])
 
     # End of Laboratory Service Update Server Busy Time
-    data['Cumulative Stats']['Laboratory Server Busy Time'] += (clock - data['Patients'][patient][
-        'Time Laboratory Service Begins']) * (state['Laboratory Occupied Beds'] / param['Laboratory Capacity'])
+    # data['Cumulative Stats']['Laboratory Server Busy Time'] += (clock - data['Patients'][patient][
+    #     'Time Laboratory Service Begins']) * (state['Laboratory Occupied Beds'] / param['Laboratory Capacity'])
 
     if state['Laboratory Urgent Queue'] == 0:  # if there is no urgent patient in the queue
 
@@ -811,8 +811,8 @@ def operation_arrival(future_event_list, state, param, clock, data, patient):
 
 def operation_departure(future_event_list, state, param, clock, data, patient):
     # End of Operation Service Update Server Busy Time
-    data['Cumulative Stats']['Operation Server Busy Time'] += (clock - data['Patients'][patient][
-        'Time Operation Service Begins']) * (state['Operation Occupied Beds'] / param['Operation Capacity'])
+    # data['Cumulative Stats']['Operation Server Busy Time'] += (clock - data['Patients'][patient][
+    #     'Time Operation Service Begins']) * (state['Operation Occupied Beds'] / param['Operation Capacity'])
 
     if data['Patients'][patient]['Surgery Type'] == 'Simple':  # if the surgery type is simple
 
@@ -1139,8 +1139,8 @@ def care_unit_departure(future_event_list, state, param, clock, data, patient):
         data['ICU Patients'].remove(patient)
 
         # End of ICU Service Update Server Busy Time
-        data['Cumulative Stats']['ICU Server Busy Time'] += (clock - data['Patients'][patient][
-            'Time ICU Service Begins']) * (state['ICU Occupied Beds'] / param['ICU Capacity'])
+        # data['Cumulative Stats']['ICU Server Busy Time'] += (clock - data['Patients'][patient][
+        #     'Time ICU Service Begins']) * (state['ICU Occupied Beds'] / param['ICU Capacity'])
 
         if state['ICU Queue'] == 0:  # if there is no patient in the ICU queue
             # Occupied Beds changes, so caculate Server busy time
@@ -1191,8 +1191,8 @@ def care_unit_departure(future_event_list, state, param, clock, data, patient):
         data['CCU Patients'].remove(patient)
 
         # End of CCU Service Update Server Busy Time
-        data['Cumulative Stats']['CCU Server Busy Time'] += (clock - data['Patients'][patient][
-            'Time CCU Service Begins']) * (state['CCU Occupied Beds'] / param['CCU Capacity'])
+        # data['Cumulative Stats']['CCU Server Busy Time'] += (clock - data['Patients'][patient][
+        #    'Time CCU Service Begins']) * (state['CCU Occupied Beds'] / param['CCU Capacity'])
 
         if state['CCU Queue'] == 0:  # if there is no patient in the CCU queue
             # Occupied Beds changes, so caculate Server busy time
@@ -1798,4 +1798,3 @@ def simulation(simulation_time, param, excel_creation=False):
 
 
     return data['Results']
-
