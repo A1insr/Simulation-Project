@@ -139,6 +139,16 @@ def starting_state(param: dict):
     data['Last Time ICU Queue Length Changed'] = 0
     data['Last Time CCU Queue Length Changed'] = 0
 
+    # Track Occupied Beds Changes
+    data['Last Time Emergency Occupied Beds Changed'] = 0  # Needed to calculate utilitization
+    data['Last Time Preoperative Occupied Beds Changed'] = 0
+    data['Last Time Laboratory Occupied Beds Changed'] = 0
+    data['Last Time Operation Occupied Beds Changed'] = 0
+    data['Last Time General Ward Occupied Beds Changed'] = 0
+    data['Last Time ICU Occupied Beds Changed'] = 0
+    data['Last Time CCU Occupied Beds Changed'] = 0
+
+    # Cumulative Stats
     data['Cumulative Stats'] = dict()
     data['Cumulative Stats']['Total Patients'] = 0
     data['Cumulative Stats']['Emergency Patients'] = 0
@@ -194,7 +204,7 @@ def starting_state(param: dict):
     future_event_list.append({'Event Type': 'Arrival', 'Event Time': 0, 'Patient': 'P1', 'Patient Type': 'Normal'})
     return state, future_event_list, data
 
-exponential(4)
+# exponential(4)
 def exponential(lambd):
     r = random.random()
     return -(1 / lambd) * math.log(r)
