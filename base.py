@@ -1532,6 +1532,21 @@ def simulation(simulation_time, param, excel_creation=False):
             future_event_list.remove(current_event)
 
         else:
+            # Update utilitization for the last time!
+            data['Cumulative Stats']['Preoperative Server Busy Time'] += \
+                (clock - data['Last Time Preoperative Occupied Beds Changed']) * (state['Preoperative Occupied Beds'] / param['Preoperative Capacity'])
+            data['Cumulative Stats']['Emergency Server Busy Time'] += \
+                (clock - data['Last Time Emergency Occupied Beds Changed']) * (state['Emergency Occupied Beds'] / param['Emergency Capacity'])
+            data['Cumulative Stats']['Laboratory Server Busy Time'] += \
+                (clock - data['Last Time Laboratory Occupied Beds Changed']) * (state['Laboratory Occupied Beds'] / param['Laboratory Capacity'])
+            data['Cumulative Stats']['Operation Server Busy Time'] += \
+                (clock - data['Last Time Operation Occupied Beds Changed']) * (state['Operation Occupied Beds'] / param['Operation Capacity'])
+            data['Cumulative Stats']['General Ward Server Busy Time'] += \
+                (clock - data['Last Time General Ward Occupied Beds Changed']) * (state['General Ward Occupied Beds'] / param['General Ward Capacity'])
+            data['Cumulative Stats']['ICU Server Busy Time'] += \
+                (clock - data['Last Time ICU Occupied Beds Changed']) * (state['ICU Occupied Beds'] / param['ICU Capacity'])
+            data['Cumulative Stats']['CCU Server Busy Time'] += \
+                (clock - data['Last Time CCU Occupied Beds Changed']) * (state['CCU Occupied Beds'] / param['CCU Capacity'])
             future_event_list.clear()
 
         # create a row in the table
