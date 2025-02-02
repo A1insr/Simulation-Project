@@ -194,7 +194,7 @@ def starting_state(param: dict):
     future_event_list.append({'Event Type': 'Arrival', 'Event Time': 0, 'Patient': 'P1', 'Patient Type': 'Normal'})
     return state, future_event_list, data
 
-exponential(4)
+
 def exponential(lambd):
     r = random.random()
     return -(1 / lambd) * math.log(r)
