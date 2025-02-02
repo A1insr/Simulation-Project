@@ -348,7 +348,7 @@ results = multi_sensitivity_analysis_with_individual_plots(
 )
 
 # run simulation once, show metrics results and save the trace as an Excel file (output.xlsx).
-run_simulation((30 * 24), original_param)
+run_simulation((60 * 24), original_param)
 
 # run some replication of the model for obtaining point estimate and confidence interval estimate for each metric.
 # save those as an Excel file (simulation_results.xlsx).

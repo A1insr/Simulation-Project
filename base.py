@@ -210,15 +210,13 @@ def triangular(LB: float, M: float, UB: float) -> float:
     return r
 
 
-def fel_maker(future_event_list, event_type, clock, data, param, patient=None):
+def fel_maker(future_event_list, event_type, clock, data, param, patient=None, patient_type=None):
     event_time = 0
 
     if event_type == 'Arrival':
-        if random.random() <= 0.75:  # Normal Patient
-            patient_type = 'Normal'
+        if patient_type == 'Normal':  # Normal Patient
             event_time = clock + exponential(param['Normal Arrival Exp Param'])
         else:  # Urgent patient
-            patient_type = 'Urgent'
             event_time = clock + exponential(param['Urgent Arrival Exp Param'])
 
         new_event = {'Event Type': event_type, 'Event Time': event_time, 'Patient': patient,
@@ -318,7 +316,10 @@ def arrival(future_event_list, state, param, clock, data, patient, patient_type)
             data['Last Time Preoperative Queue Length Changed'] = clock
 
         next_patient = 'P' + str(int(patient[1:]) + 1)
-        fel_maker(future_event_list, 'Arrival', clock, data, param, next_patient)
+        if random.random() <= 0.75:
+            fel_maker(future_event_list, 'Arrival', clock, data, param, next_patient, 'Normal')
+        else:
+            fel_maker(future_event_list, 'Arrival', clock, data, param, next_patient, 'Urgent')
 
     else:  # Urgent Patient
         if random.random() >= 0.005:  # if it's single entry
@@ -372,7 +373,10 @@ def arrival(future_event_list, state, param, clock, data, patient, patient_type)
                     fel_maker(future_event_list, 'Laboratory Arrival', clock, data, param, patient)
 
             next_patient = 'P' + str(int(patient[1:]) + 1)
-            fel_maker(future_event_list, 'Arrival', clock, data, param, next_patient)
+            if random.random() <= 0.75:
+                fel_maker(future_event_list, 'Arrival', clock, data, param, next_patient, 'Normal')
+            else:
+                fel_maker(future_event_list, 'Arrival', clock, data, param, next_patient, 'Urgent')
 
         else:  # it's group entry
             epsilon = 1e-10
@@ -414,7 +418,10 @@ def arrival(future_event_list, state, param, clock, data, patient, patient_type)
                               'P' + str(int(patient[1:]) + i))
 
             next_patient = 'P' + str(int(patient[1:]) + GroupNumber)
-            fel_maker(future_event_list, 'Arrival', clock, data, param, next_patient)
+            if random.random() <= 0.75:
+                fel_maker(future_event_list, 'Arrival', clock, data, param, next_patient, 'Normal')
+            else:
+                fel_maker(future_event_list, 'Arrival', clock, data, param, next_patient, 'Urgent')
 
 
 def laboratory_arrival(future_event_list, state, param, clock, data, patient):
