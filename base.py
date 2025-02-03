@@ -956,6 +956,7 @@ def operation_departure(future_event_list, state, param, clock, data, patient):
 
         if random.random() <= 0.1:  # if the patient dies
             data['Patients'].pop(patient, None)
+            # data['Patients'][patient]['Time Service Ends'] = clock
 
         else:  # the patient doesn't die
 
@@ -1307,6 +1308,7 @@ def end_of_service(future_event_list, state, param, clock, data, patient):
     #     'Time General Ward Service Begins']) * (state['General Ward Occupied Beds'] / param['General Ward Capacity'])
 
     data['Patients'].pop(patient, None)
+    # data['Patients'][patient]['Time Service Ends'] = clock
 
     if state['General Ward Queue'] == 0:  # if there is no patient in the queue
         # Occupied Beds changes, so caculate Server busy time
@@ -1818,5 +1820,4 @@ def simulation(simulation_time, param, excel_creation=False):
         Max_Lq_CCU = 0
     data['Results']['Max_Lq_CCU'] = Max_Lq_CCU
 
-
-    return data['Results']
+    return data
