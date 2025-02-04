@@ -1,4 +1,4 @@
-import base
+import base2
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib as mpl
@@ -6,14 +6,14 @@ from tqdm import tqdm
 
 
 # Initialize parameters
-num_of_replications = 3
+num_of_replicatons = 3
 num_of_days = 500
 frame_length = 18
 window_size = 10
 tick_spacing = 50
 
 original_param = {
-    'Preoperative Capacity': 30,
+    'Preoperative Capacity': 25,
     'Emergency Capacity': 10,
     'Emergency Queue Capacity': 10,
     'Laboratory Capacity': 3,
@@ -27,7 +27,7 @@ original_param = {
     'Urgent Laboratory Param': (10 / 60),
     'After Laboratory Uni a Param': (28 / 60),
     'After Laboratory Uni b Param': (32 / 60),
-    'Normal Operation Param': 24,
+    'Normal Operation Param': 48,
     'Urgent Operation trgl LB Param': (5 / 60),
     'Urgent Operation trgl M Param': (75 / 60),
     'Urgent Operation trgl UB Param': (100 / 60),
@@ -66,11 +66,13 @@ def moving_average(input_list, m):
 def calculate_aggregate_queue_waiting_time(start_time, end_time, patients_data):
 
     cumulative_waiting_time = 0
-
+    # print('hey')
+    # print(patients_data)
     for patient in patients_data:
         if 'Time Preoperative Service Begins' in patients_data[patient]:
             # if the customer has arrived in this time-frame ...
             if start_time <= patients_data[patient]['Arrival Time'] < end_time:
+                #print(2)
                 # if the customer starts getting service in this time-frame...
                 if patients_data[patient]['Time Preoperative Service Begins'] < end_time:
                     cumulative_waiting_time += patients_data[patient]['Time Preoperative Service Begins'] - \
@@ -92,16 +94,21 @@ def calculate_aggregate_queue_waiting_time(start_time, end_time, patients_data):
 
                 elif patients_data[patient]['Time Preoperative Service Begins'] > end_time:
                     cumulative_waiting_time += end_time - start_time
-
+    # print(cumulative_waiting_time)
     return cumulative_waiting_time
 
 def calculate_aggregate_queue_length(start_time, end_time, preoperative_queue_data):
+    
     cumulative_queue_length = 0
+    
+    t_1 = start_time
     for time in preoperative_queue_data:
         if start_time <= time < end_time:
-           cumulative_queue_length += (time - start_time) * preoperative_queue_data[time]
+            cumulative_queue_length += (time - t_1) * preoperative_queue_data[time]
+            t_1 = time
         elif time > end_time:
             break
+            
     return cumulative_queue_length / (end_time - start_time)
     
 simulation_time = num_of_days * 24
@@ -111,10 +118,11 @@ x = [i for i in range(1, num_of_frames + 1)]
 
 for replication in tqdm(range(1, num_of_replications + 1), desc="Simulating Replications"):
 
-    simulation_data = base.simulation(num_of_days * 24, original_param)
+    simulation_data = base2.simulation(num_of_days * 24, original_param)
     # print(simulation_data)
     patients_data = simulation_data['Patients']
     preoperative_queue_data = simulation_data['preoperative_queue_tracker']
+    # print(patients_data)
 
     waiting_time_frame_aggregate[replication] = []
     preoperative_frame_queue_length[replication] = []
