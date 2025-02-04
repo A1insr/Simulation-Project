@@ -51,7 +51,8 @@ fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(8, 6))
 
 # Set up a data structure to save required outputs in each replication
 waiting_time_frame_aggregate = dict()  # keys are replications
-preoperative_frame_queue_length = dict() # keys are replications 
+preoperative_frame_queue_length = dict()  # keys are replications
+
 
 # Function to calculate moving average of a list over a sliding window of length m.
 def moving_average(input_list, m):
@@ -95,6 +96,7 @@ def calculate_aggregate_queue_waiting_time(start_time, end_time, patients_data):
 
     return cumulative_waiting_time
 
+
 def calculate_aggregate_queue_length(start_time, end_time, preoperative_queue_data):
     cumulative_queue_length = 0
     for time in preoperative_queue_data:
@@ -103,7 +105,8 @@ def calculate_aggregate_queue_length(start_time, end_time, preoperative_queue_da
         elif time > end_time:
             break
     return cumulative_queue_length / (end_time - start_time)
-    
+
+
 simulation_time = num_of_days * 24
 # Just use the frames with full information (drop last 2 frames)
 num_of_frames = simulation_time // frame_length - 2
