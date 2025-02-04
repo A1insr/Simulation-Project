@@ -1,4 +1,4 @@
-import base2
+import base
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib as mpl
@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 
 # Initialize parameters
-num_of_replicatons = 3
+num_of_replications = 3
 num_of_days = 500
 frame_length = 18
 window_size = 10
@@ -66,6 +66,7 @@ def moving_average(input_list, m):
 
 def calculate_aggregate_queue_waiting_time(start_time, end_time, patients_data):
 
+    patient_number = 0
     cumulative_waiting_time = 0
     # print('hey')
     # print(patients_data)
@@ -73,31 +74,77 @@ def calculate_aggregate_queue_waiting_time(start_time, end_time, patients_data):
         if 'Time Preoperative Service Begins' in patients_data[patient]:
             # if the customer has arrived in this time-frame ...
             if start_time <= patients_data[patient]['Arrival Time'] < end_time:
-                #print(2)
                 # if the customer starts getting service in this time-frame...
                 if patients_data[patient]['Time Preoperative Service Begins'] < end_time:
                     cumulative_waiting_time += patients_data[patient]['Time Preoperative Service Begins'] - \
                                                patients_data[patient]['Arrival Time']
+                    patient_number += 1
+
                 # else if the customer will start getting service after this time-frame...
                 else:
                     cumulative_waiting_time += end_time - \
                                                patients_data[patient]['Arrival Time']
+                    patient_number += 1
+
+            elif patients_data[patient]['Arrival Time'] < start_time and \
+                    patients_data[patient]['Time Preoperative Service Begins'] > end_time:
+                cumulative_waiting_time += end_time - start_time
+                patient_number += 1
 
             elif patients_data[patient]['Arrival Time'] > end_time:
                 break
 
-            # if the customer has arrived before the beginning of this time-frame
-            # but starts getting service during this time-frame...
-            else:
-                if start_time < patients_data[patient]['Time Preoperative Service Begins'] < end_time:
-                    cumulative_waiting_time += patients_data[patient]['Time Preoperative Service Begins'] - \
-                                               start_time
+    if patient_number == 0:
+        return 0
 
-                elif patients_data[patient]['Time Preoperative Service Begins'] > end_time:
-                    cumulative_waiting_time += end_time - start_time
-    # print(cumulative_waiting_time)
-    return cumulative_waiting_time
+    return cumulative_waiting_time / patient_number
 
+            # # if the customer has arrived before the beginning of this time-frame
+            # # but starts getting service during this time-frame...
+            # else:
+            #     if start_time < patients_data[patient]['Time Preoperative Service Begins'] < end_time:
+            #         cumulative_waiting_time += patients_data[patient]['Time Preoperative Service Begins'] - \
+            #                                    start_time
+            #
+            #     elif patients_data[patient]['Time Preoperative Service Begins'] > end_time:
+            #         cumulative_waiting_time += end_time - start_time
+    # return cumulative_waiting_time
+
+
+# def calculate_aggregate_queue_waiting_time(start_time, end_time, patients_data):
+#     patient_number = 0
+#     cumulative_pre_surgery_waiting_time = 0
+#
+#     for patient in patients_data['Pre_surgery service begins']:
+#         # if the patient has arrived in this time-frame ...
+#         if start_time <= patients_data['presurgery_arrival'][patient] < end_time:
+#             # if the patient starts getting service in this time-frame...
+#             if patients_data['Pre_surgery service begins'][patient] < end_time:
+#                 cumulative_pre_surgery_waiting_time += patients_data['Pre_surgery service begins'][patient] - \
+#                                                        patients_data['presurgery_arrival'][patient]
+#                 patient_number += 1
+#             # else if the patient will start getting service after this time-frame...
+#             else:
+#                 cumulative_pre_surgery_waiting_time += end_time - patients_data['presurgery_arrival'][patient]
+#                 patient_number += 1
+#         # if the patient has arrived before the beginning of this time-frame
+#         # but starts getting service during this time-frame...
+#         elif start_time < patients_data['Pre_surgery service begins'][patient] < end_time:
+#             cumulative_pre_surgery_waiting_time += patients_data['Pre_surgery service begins'][patient] - start_time
+#             patient_number += 1
+#
+#         elif patients_data['presurgery_arrival'][patient] < start_time and patients_data['Pre_surgery service begins'][
+#             patient] > end_time:
+#             cumulative_pre_surgery_waiting_time += end_time - start_time
+#             patient_number += 1
+#
+#         elif patients_data['presurgery_arrival'][patient] > end_time:
+#             break
+#
+#     if patient_number == 0:
+#         return 0
+#
+#     return cumulative_pre_surgery_waiting_time / patient_number
 
 def calculate_aggregate_queue_length(start_time, end_time, preoperative_queue_data):
     
@@ -121,7 +168,7 @@ x = [i for i in range(1, num_of_frames + 1)]
 
 for replication in tqdm(range(1, num_of_replications + 1), desc="Simulating Replications"):
 
-    simulation_data = base2.simulation(num_of_days * 24, original_param)
+    simulation_data = base.simulation(num_of_days * 24, original_param)
     # print(simulation_data)
     patients_data = simulation_data['Patients']
     preoperative_queue_data = simulation_data['preoperative_queue_tracker']

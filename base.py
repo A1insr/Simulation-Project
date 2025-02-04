@@ -963,8 +963,9 @@ def operation_departure(future_event_list, state, param, clock, data, patient):
     else:  # if the surgery type is complex
 
         if random.random() <= 0.1:  # if the patient dies
-            data['Patients'].pop(patient, None)
+            # data['Patients'].pop(patient, None)
             # data['Patients'][patient]['Time Service Ends'] = clock
+            pass
 
         else:  # the patient doesn't die
 
