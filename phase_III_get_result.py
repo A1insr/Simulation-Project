@@ -95,11 +95,14 @@ def calculate_aggregate_queue_waiting_time(start_time, end_time, patients_data):
 
     return cumulative_waiting_time
 
-def calculate_aggregate_queue_length(start_time, end_time, patients_data):
+def calculate_aggregate_queue_length(start_time, end_time, preoperative_queue_data):
     cumulative_queue_length = 0
-    
-    
-    return cumulative_queue_length
+    for time in preoperative_queue_data:
+        if start_time <= time < end_time:
+           cumulative_queue_length += (time - start_time) * preoperative_queue_data[time]
+        elif time > end_time:
+            break
+    return cumulative_queue_length / (end_time - start_time)
     
 simulation_time = num_of_days * 24
 # Just use the frames with full information (drop last 2 frames)
@@ -111,30 +114,49 @@ for replication in tqdm(range(1, num_of_replications + 1), desc="Simulating Repl
     simulation_data = base.simulation(num_of_days * 24, original_param)
     # print(simulation_data)
     patients_data = simulation_data['Patients']
+    preoperative_queue_data = simulation_data['preoperative_queue_tracker']
 
     waiting_time_frame_aggregate[replication] = []
+    preoperative_frame_queue_length[replication] = []
 
     # do calculations frame by frame
     for time in range(0, num_of_frames * frame_length, frame_length):
 
         waiting_time_frame_aggregate[replication].append(
             calculate_aggregate_queue_waiting_time(time, time + frame_length, patients_data))
+        preoperative_frame_queue_length[replication].append(
+            calculate_aggregate_queue_length(time, time + frame_length, preoperative_queue_data))
 
 
 waiting_time_replication_average = []
+preoperative_queue_length_replication_average = []
+
 
 for i in range(num_of_frames):
     average_waiting_time = 0
+    average_preoperative_queue_length = 0
 
     for replication in range(1, num_of_replications + 1):
         average_waiting_time += waiting_time_frame_aggregate[replication][i] * (1 / num_of_replications)
-
+        average_preoperative_queue_length += preoperative_frame_queue_length[replication][i] * (1 / num_of_replications)
+         
     waiting_time_replication_average.append(average_waiting_time)
+    preoperative_queue_length_replication_average.append(average_preoperative_queue_length)
+    
 
 waiting_time_moving_replication_average = moving_average(waiting_time_replication_average, window_size)
+preoperative_queue_length_moving_replication_average = moving_average(preoperative_queue_length_replication_average, window_size)
 
 fig.suptitle(f'Warm-up analysis over {num_of_replications} replications')
 
+
+ax[0].plot(x, preoperative_queue_length_replication_average, 'r', linewidth=5, label="Average across replications")
+ax[0].plot(x, preoperative_queue_length_moving_replication_average, 'k', label=f'Moving average (m = {window_size})')
+ax[0].set_title('Aggregate Preoperative Queue Length')
+ax[0].set_xlabel('Frame No.')
+ax[0].set_ylabel('Aggregate Preoperative Queue Length')
+ax[0].xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
+ax[0].legend()
 
 ax[1].plot(x, waiting_time_replication_average, 'r', linewidth=5, label="Average across replications")
 ax[1].plot(x, waiting_time_moving_replication_average, 'k', label=f'Moving average (m = {window_size})')
