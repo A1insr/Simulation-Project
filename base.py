@@ -200,7 +200,8 @@ def starting_state(param: dict):
     data['Cumulative Stats']['Patients With Complex Surgery'] = 0
 
     # Set up a data structure to save required queue length by time
-    preoperative_queue_tracker = dict()  # keys are time, values are queue length
+    # preoperative_queue_tracker = dict()  # keys are time, values are queue length
+    data['preoperative_queue_tracker'] = dict()  # keys are time, values are queue length
 
     # Starting FEL
     future_event_list = list()
@@ -330,7 +331,7 @@ def arrival(future_event_list, state, param, clock, data, patient, patient_type)
                 (clock - data['Last Time Preoperative Queue Length Changed']) * (state['Preoperative Queue'])
 
             # Track preoperative queue length
-            preoperative_queue_tracker[data['Last Time Preoperative Queue Length Changed']] = state['Preoperative Queue']
+            data['preoperative_queue_tracker'][data['Last Time Preoperative Queue Length Changed']] = state['Preoperative Queue']
             state['Preoperative Queue'] += 1
             data['Preoperative Queue Patients'][patient] = clock  # add this patient to the queue
             data['Preoperative Queue Lengths'][clock] = state['Preoperative Queue']  # Save queue length
@@ -667,7 +668,7 @@ def operation_arrival(future_event_list, state, param, clock, data, patient):
                     (clock - data['Last Time Preoperative Queue Length Changed']) * (state['Preoperative Queue'])
 
                 # Track preoperative queue length
-                preoperative_queue_tracker[data['Last Time Preoperative Queue Length Changed']] = state['Preoperative Queue']
+                data['preoperative_queue_tracker'][data['Last Time Preoperative Queue Length Changed']] = state['Preoperative Queue']
                 state['Preoperative Queue'] -= 1
                 data['Preoperative Queue Lengths'][clock] = state['Preoperative Queue']  # Save queue length
 
