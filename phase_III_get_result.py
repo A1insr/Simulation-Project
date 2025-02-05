@@ -54,7 +54,20 @@ def calculate_aggregate_queue_length(start_time, end_time, preoperative_queue_da
             break
 
     return cumulative_queue_length / (end_time - start_time)
+    
 
+def calculate_number_of_finishing_patients(start_time, end_time, patients_data):
+
+    number_of_finishing_patients = 0
+
+    for patient in patients_data:
+        if start_time < patients_data['Patients'][patient]['Time Service Ends'] <= end_time:
+            number_of_finishing_patients += 1
+        elif patients_data['Patients'][patient]['Time Service Ends'] > end_time:
+            break
+
+    return number_of_finishing_patients
+    
 
 def simulate_and_plot(param_updates, simulation_config):
     # Initialize parameters
@@ -102,11 +115,12 @@ def simulate_and_plot(param_updates, simulation_config):
     mpl.rc('font', size=12)
 
     # Create an empty figure with two subplots
-    fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(8, 6))
+    fig, ax = plt.subplots(nrows=3, ncols=1, figsize=(8, 6))
 
     # Data structures to save outputs
     waiting_time_frame_aggregate = {}
     preoperative_frame_queue_length = {}
+    finishing_patients_frame_count = {}  
 
     def moving_average(input_list, m):
         output_list = []
@@ -127,27 +141,36 @@ def simulate_and_plot(param_updates, simulation_config):
 
         waiting_time_frame_aggregate[replication] = []
         preoperative_frame_queue_length[replication] = []
+        finishing_patients_frame_count[replication] = []
 
         for time in range(0, num_of_frames * frame_length, frame_length):
             waiting_time_frame_aggregate[replication].append(
                 calculate_aggregate_queue_waiting_time(time, time + frame_length, patients_data))
             preoperative_frame_queue_length[replication].append(
                 calculate_aggregate_queue_length(time, time + frame_length, preoperative_queue_data))
+            finishing_patients_frame_count[replication].append(
+                calculate_number_of_finishing_patients(time, time + frame_length, patients_data))
+                
 
     waiting_time_replication_average = []
     preoperative_queue_length_replication_average = []
+    finishing_patients_replication_average = []
 
     for i in range(num_of_frames):
         avg_wait_time = sum(
             waiting_time_frame_aggregate[rep][i] for rep in range(1, num_of_replications + 1)) / num_of_replications
         avg_queue_length = sum(
             preoperative_frame_queue_length[rep][i] for rep in range(1, num_of_replications + 1)) / num_of_replications
+        avg_finishing_count = sum(
+            finishing_patients_frame_count[rep][i] for rep in range(1, num_of_replications + 1)) / num_of_replications
         waiting_time_replication_average.append(avg_wait_time)
         preoperative_queue_length_replication_average.append(avg_queue_length)
+        finishing_patients_replication_average.append(avg_finishing_count)
 
     waiting_time_moving_replication_average = moving_average(waiting_time_replication_average, window_size)
     preoperative_queue_length_moving_replication_average = moving_average(preoperative_queue_length_replication_average,
                                                                           window_size)
+    finishing_patients_moving_replication_average = moving_average(finishing_patients_replication_average, window_size)
 
     fig.suptitle(f'Warm-up analysis over {num_of_replications} replications')
 
@@ -168,6 +191,14 @@ def simulate_and_plot(param_updates, simulation_config):
     ax[1].xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
     ax[1].legend()
 
+    ax[2].plot(x, finishing_patients_replication_average, 'r', linewidth=5, label="Average across replications")
+    ax[2].plot(x, finishing_patients_moving_replication_average, 'k', label=f'Moving average (m = {window_size})')
+    ax[2].set_title('Number of Finishing Patients')
+    ax[2].set_xlabel('Frame No.')
+    ax[2].set_ylabel('Number of Finishing Patients')
+    ax[2].xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
+    ax[2].legend()
+    
     fig.tight_layout()
     fig.show()
     fig.savefig('Warm-up analysis - Time-Frame Approach')
