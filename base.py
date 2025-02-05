@@ -1317,7 +1317,7 @@ def end_of_service(future_event_list, state, param, clock, data, patient):
     #     'Time General Ward Service Begins']) * (state['General Ward Occupied Beds'] / param['General Ward Capacity'])
 
     # data['Patients'].pop(patient, None)
-    # data['Patients'][patient]['Time Service Ends'] = clock
+    data['Patients'][patient]['Time Service Ends'] = clock
 
     if state['General Ward Queue'] == 0:  # if there is no patient in the queue
         # Occupied Beds changes, so caculate Server busy time
