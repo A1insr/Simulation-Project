@@ -1,4 +1,3 @@
-import base
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,21 +9,21 @@ from openpyxl.styles import Alignment, Font, PatternFill
 
 
 original_param = {
-    'Preoperative Capacity': 25,
+    'Preoperative Capacity': 30,
     'Emergency Capacity': 10,
     'Emergency Queue Capacity': 10,
     'Laboratory Capacity': 3,
     'Operation Capacity': 50,
-    'General Ward Capacity': 40,
+    'General Ward Capacity': 60,
     'ICU Capacity': 10,
-    'CCU Capacity': 5,
+    'CCU Capacity': 7,
     'Normal Arrival Exp Param': 1,
     'Urgent Arrival Exp Param': 4,
     'Normal Laboratory Param': 1,
     'Urgent Laboratory Param': (10 / 60),
     'After Laboratory Uni a Param': (28 / 60),
     'After Laboratory Uni b Param': (32 / 60),
-    'Normal Operation Param': 48,
+    'Normal Operation Param': 30,
     'Urgent Operation trgl LB Param': (5 / 60),
     'Urgent Operation trgl M Param': (75 / 60),
     'Urgent Operation trgl UB Param': (100 / 60),
@@ -35,7 +34,7 @@ original_param = {
     'Complex Operation Mean': 242.03,
     'Complex Operation SD': 63.27,
     'Care Unit Exp Param': (1 / 25),
-    'End of Service Exp Param': (1 / 50)
+    'End of Service Exp Param': (1 / 45)
 }
 
 
@@ -59,7 +58,7 @@ def run_simulation(simulation_time, param):
                - Average waiting times in queues.
                - Maximum waiting times in queues.
     """
-    simulation = base.simulation(simulation_time, param, excel_creation=True)['Results']
+    simulation = base2.simulation(simulation_time, param, excel_creation=True)['Results']
 
     print('--------------------------------------------------------------')
     print('Metrics:\n')
@@ -69,57 +68,62 @@ def run_simulation(simulation_time, param):
     print(f"The percentage of emergency patients who are admitted immediately is: {simulation['immediately_admitted_emergency_patients_percentage']}")
 
     print('\nAverage productivity of different hospital departments:')
-    print(f'rho_Emergency = {simulation['rho_Emergency']}')
-    print(f'rho_Preoperative = {simulation['rho_Preoperative']}')
-    print(f'rho_Laboratory = {simulation['rho_Laboratory']}')
-    print(f'rho_Operation = {simulation['rho_Operation']}')
-    print(f'rho_General_Ward = {simulation['rho_General_Ward']}')
-    print(f'rho_ICU = {simulation['rho_ICU']}')
-    print(f'rho_CCU = {simulation['rho_CCU']}')
+    print(f"rho_Emergency = {simulation['rho_Emergency']}")
+    print(f"rho_Preoperative = {simulation['rho_Preoperative']}")
+    print(f"rho_Laboratory = {simulation['rho_Laboratory']}")
+    print(f"rho_Operation = {simulation['rho_Operation']}")
+    print(f"rho_General_Ward = {simulation['rho_General_Ward']}")
+    print(f"rho_ICU = {simulation['rho_ICU']}")
+    print(f"rho_CCU = {simulation['rho_CCU']}")
 
     print('\nAverage queue length in different hospital departments:')
-    print(f'Lq_Emergency = {simulation['Lq_Emergency']}')
-    print(f'Lq_Preoperative = {simulation['Lq_Preoperative']}')
-    print(f'Lq_Laboratory_Normal = {simulation['Lq_Laboratory_Normal']}')
-    print(f'Lq_Laboratory_Urgent = {simulation['Lq_Laboratory_Urgent']}')
-    print(f'Lq_Operation_Normal = {simulation['Lq_Operation_Normal']}')
-    print(f'Lq_Operation_Urgent = {simulation['Lq_Operation_Urgent']}')
-    print(f'Lq_General_Ward = {simulation['Lq_General_Ward']}')
-    print(f'Lq_ICU = {simulation['Lq_ICU']}')
-    print(f'Lq_CCU = {simulation['Lq_CCU']}')
+    print(f"Lq_Emergency = {simulation['Lq_Emergency']}")
+    print(f"Lq_Preoperative = {simulation['Lq_Preoperative']}")
+    print(f"Lq_Laboratory_Normal = {simulation['Lq_Laboratory_Normal']}")
+    print(f"Lq_Laboratory_Urgent = {simulation['Lq_Laboratory_Urgent']}")
+    print(f"Lq_Operation_Normal = {simulation['Lq_Operation_Normal']}")
+    print(f"Lq_Operation_Urgent = {simulation['Lq_Operation_Urgent']}")
+    print(f"Lq_General_Ward = {simulation['Lq_General_Ward']}")
+    print(f"Lq_ICU = {simulation['Lq_ICU']}")
+    print(f"Lq_CCU = {simulation['Lq_CCU']}")
 
     print('\nMaximum queue length in different hospital departments:')
-    print(f'Max_Lq_Emergency = {simulation['Max_Lq_Emergency']}')
-    print(f'Max_Lq_Preoperative = {simulation['Max_Lq_Preoperative']}')
-    print(f'Max_Lq_Laboratory_Normal = {simulation['Max_Lq_Laboratory_Normal']}')
-    print(f'Max_Lq_Laboratory_Urgent = {simulation['Max_Lq_Laboratory_Urgent']}')
-    print(f'Max_Lq_Operation_Normal = {simulation['Max_Lq_Operation_Normal']}')
-    print(f'Max_Lq_Operation_Urgent = {simulation['Max_Lq_Operation_Urgent']}')
-    print(f'Max_Lq_General_Ward = {simulation['Max_Lq_General_Ward']}')
-    print(f'Max_Lq_ICU = {simulation['Max_Lq_ICU']}')
-    print(f'Max_Lq_CCU = {simulation['Max_Lq_CCU']}')
+    print(f"Max_Lq_Emergency = {simulation['Max_Lq_Emergency']}")
+    print(f"Max_Lq_Preoperative = {simulation['Max_Lq_Preoperative']}")
+    print(f"Max_Lq_Laboratory_Normal = {simulation['Max_Lq_Laboratory_Normal']}")
+    print(f"Max_Lq_Laboratory_Urgent = {simulation['Max_Lq_Laboratory_Urgent']}")
+    print(f"Max_Lq_Operation_Normal = {simulation['Max_Lq_Operation_Normal']}")
+    print(f"Max_Lq_Operation_Urgent = {simulation['Max_Lq_Operation_Urgent']}")
+    print(f"Max_Lq_General_Ward = {simulation['Max_Lq_General_Ward']}")
+    print(f"Max_Lq_ICU = {simulation['Max_Lq_ICU']}")
+    print(f"Max_Lq_CCU = {simulation['Max_Lq_CCU']}")
 
     print('\nAverage waiting time in queues in different hospital departments:')
-    print(f'Wq_Emergency = {simulation['Wq_Emergency']}')
-    print(f'Wq_Preoperative = {simulation['Wq_Preoperative']}')
-    print(f'Wq_Laboratory_Normal = {simulation['Wq_Laboratory_Normal']}')
-    print(f'Wq_Laboratory_Urgent = {simulation['Wq_Laboratory_Urgent']}')
-    print(f'Wq_Operation_Normal = {simulation['Wq_Operation_Normal']}')
-    print(f'Wq_Operation_Urgent = {simulation['Wq_Operation_Urgent']}')
-    print(f'Wq_General_Ward = {simulation['Wq_General_Ward']}')
-    print(f'Wq_ICU = {simulation['Wq_ICU']}')
-    print(f'Wq_CCU = {simulation['Wq_CCU']}')
+    print(f"Wq_Emergency = {simulation['Wq_Emergency']}")
+    print(f"Wq_Preoperative = {simulation['Wq_Preoperative']}")
+    print(f"Wq_Laboratory_Normal = {simulation['Wq_Laboratory_Normal']}")
+    print(f"Wq_Laboratory_Urgent = {simulation['Wq_Laboratory_Urgent']}")
+    print(f"Wq_Operation_Normal = {simulation['Wq_Operation_Normal']}")
+    print(f"Wq_Operation_Urgent = {simulation['Wq_Operation_Urgent']}")
+    print(f"Wq_General_Ward = {simulation['Wq_General_Ward']}")
+    print(f"Wq_ICU = {simulation['Wq_ICU']}")
+    print(f"Wq_CCU = {simulation['Wq_CCU']}")
 
     print('\nMaximum waiting time in queues in different hospital departments:')
-    print(f'Max_Wq_Emergency = {simulation['Max_Wq_Emergency']}')
-    print(f'Max_Wq_Preoperative = {simulation['Max_Wq_Preoperative']}')
-    print(f'Max_Wq_Laboratory_Normal = {simulation['Max_Wq_Laboratory_Normal']}')
-    print(f'Max_Wq_Laboratory_Urgent = {simulation['Max_Wq_Laboratory_Urgent']}')
-    print(f'Max_Wq_Operation_Normal = {simulation['Max_Wq_Operation_Normal']}')
-    print(f'Max_Wq_Operation_Urgent = {simulation['Max_Wq_Operation_Urgent']}')
-    print(f'Max_Wq_General_Ward = {simulation['Max_Wq_General_Ward']}')
-    print(f'Max_Wq_ICU = {simulation['Max_Wq_ICU']}')
-    print(f'Max_Wq_CCU = {simulation['Max_Wq_CCU']}')
+    print(f"Max_Wq_Emergency = {simulation['Max_Wq_Emergency']}")
+    print(f"Max_Wq_Preoperative = {simulation['Max_Wq_Preoperative']}")
+    print(f"Max_Wq_Laboratory_Normal = {simulation['Max_Wq_Laboratory_Normal']}")
+    print(f"Max_Wq_Laboratory_Urgent = {simulation['Max_Wq_Laboratory_Urgent']}")
+    print(f"Max_Wq_Operation_Normal = {simulation['Max_Wq_Operation_Normal']}")
+    print(f"Max_Wq_Operation_Urgent = {simulation['Max_Wq_Operation_Urgent']}")
+    print(f"Max_Wq_General_Ward = {simulation['Max_Wq_General_Ward']}")
+    print(f"Max_Wq_ICU = {simulation['Max_Wq_ICU']}")
+    print(f"Max_Wq_CCU = {simulation['Max_Wq_CCU']}")
+    
+    print('\nWarm Period Criteria:')
+    print(f"Lq_Preoperative_Warm_Period = {simulation['Lq_Preoperative_Warm_Period']}")
+    print(f"Wq_Preoperative_Warm_Period = {simulation['Wq_Preoperative_Warm_Period']}")
+    print(f"Finished_Patients = {simulation['Finished_Patients']}")
 
     print('--------------------------------------------------------------')
     print('Simulation Ended!')
@@ -155,7 +159,7 @@ def replication(simulation_time, r, param, alpha):
 
     for i in tqdm(range(r)):
         # Run the simulation
-        result = base.simulation(simulation_time, param)
+        result = base2.simulation(simulation_time, param)['Results']
 
         # On the first iteration, initialize structures
         if i == 0:
@@ -263,7 +267,7 @@ def multi_sensitivity_analysis_with_individual_plots(simulation_time, param, ana
             metrics = []
 
             for _ in range(replications):
-                result = base.simulation(simulation_time, param_copy)
+                result = base2.simulation(simulation_time, param_copy)['Results']
                 metrics.append(result[metric])
 
             # Calculate statistics
@@ -347,11 +351,8 @@ results = multi_sensitivity_analysis_with_individual_plots(
 )
 
 # run simulation once, show metrics results and save the trace as an Excel file (output.xlsx).
-run_simulation((30 * 24), original_param)
+run_simulation((1650 * 24), original_param)
 
 # run some replication of the model for obtaining point estimate and confidence interval estimate for each metric.
 # save those as an Excel file (simulation_results.xlsx).
-result = replication((30 * 24), 20, original_param, 0.05)
-
-
-
+result = replication((1650 * 24), 25, original_param, 0.05)
