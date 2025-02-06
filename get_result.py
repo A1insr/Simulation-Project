@@ -10,21 +10,21 @@ from openpyxl.styles import Alignment, Font, PatternFill
 
 
 original_param = {
-    'Preoperative Capacity': 25,
+    'Preoperative Capacity': 30,
     'Emergency Capacity': 10,
     'Emergency Queue Capacity': 10,
     'Laboratory Capacity': 3,
     'Operation Capacity': 50,
-    'General Ward Capacity': 40,
+    'General Ward Capacity': 65,
     'ICU Capacity': 10,
-    'CCU Capacity': 5,
+    'CCU Capacity': 10,
     'Normal Arrival Exp Param': 1,
     'Urgent Arrival Exp Param': 4,
     'Normal Laboratory Param': 1,
     'Urgent Laboratory Param': (10 / 60),
     'After Laboratory Uni a Param': (28 / 60),
     'After Laboratory Uni b Param': (32 / 60),
-    'Normal Operation Param': 48,
+    'Normal Operation Param': 24,
     'Urgent Operation trgl LB Param': (5 / 60),
     'Urgent Operation trgl M Param': (75 / 60),
     'Urgent Operation trgl UB Param': (100 / 60),
@@ -35,7 +35,7 @@ original_param = {
     'Complex Operation Mean': 242.03,
     'Complex Operation SD': 63.27,
     'Care Unit Exp Param': (1 / 25),
-    'End of Service Exp Param': (1 / 50)
+    'End of Service Exp Param': (1 / 40)
 }
 
 
@@ -354,7 +354,7 @@ if __name__ == "__main__":
     )
 
     # run simulation once, show metrics results and save the trace as an Excel file (output.xlsx).
-    run_simulation((30 * 24), original_param, excel_creation=False)
+    run_simulation((30 * 24), original_param, excel_creation=True)
 
     # run some replication of the model for obtaining point estimate and confidence interval estimate for each metric.
     # save those as an Excel file (simulation_results.xlsx).

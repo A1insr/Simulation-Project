@@ -302,8 +302,8 @@ param_updates_2 = {
 }
 
 simulation_config = {
-    'num_of_replications': 2,
-    'num_of_days': 700,
+    'num_of_replications': 25,
+    'num_of_days': 900,
     'frame_length': 18,
     'window_size': 10,
     'tick_spacing': 50
