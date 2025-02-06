@@ -285,7 +285,7 @@ def simulate_and_plot(original_param, param_updates, simulation_config, system_n
     fig.savefig(f'Warm-up analysis - {system_name}.png', dpi=300, bbox_inches='tight')
 
 
-system1_param = {
+param_updates_1 = {
     'Preoperative Capacity': 25,
     'General Ward Capacity': 55,
     'CCU Capacity': 10,
@@ -293,7 +293,7 @@ system1_param = {
     'End of Service Exp Param': (1 / 40)
 }
 
-system2_param = {
+param_updates_2 = {
     'Preoperative Capacity': 30,
     'General Ward Capacity': 60,
     'CCU Capacity': 10,
@@ -310,10 +310,19 @@ simulation_config = {
 }
 
 # Diagram of the 2 systems introduced for warm-up analysis
-simulate_and_plot(original_param, system1_param, simulation_config, '1st System')
-simulate_and_plot(original_param, system2_param, simulation_config, '2nd System')
+simulate_and_plot(original_param, param_updates_1, simulation_config, '1st System')
+simulate_and_plot(original_param, param_updates_2, simulation_config, '2nd System')
 
 # Running the system over the long term to obtain metrics
-run_simulation((1650 * 24), original_param)
-result = replication((1650 * 24), 25, original_param, 0.05)
+system1_param = original_param
+system1_param.update(param_updates_1)
+
+system2_param = original_param
+system2_param.update(param_updates_2)
+
+run_simulation((1650 * 24), system1_param)
+system1_param = replication((1650 * 24), 25, system1_param, 0.05)
+
+run_simulation((1650 * 24), system2_param)
+system2_result = replication((1650 * 24), 25, system2_param, 0.05)
 
