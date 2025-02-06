@@ -1,9 +1,13 @@
 import base
-from get_result import replication
+import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib as mpl
 from tqdm import tqdm
+from scipy.stats import t
+from openpyxl import Workbook
+from openpyxl.styles import Font
 
 
 original_param = {
@@ -58,19 +62,139 @@ def run_simulation(simulation_time, param, excel_creation=False):
             2. `Wq_Preoperative_Warm_Period`
             3. `Finished_Patients`
         - Optionally generates an Excel file containing the simulation results if `excel_creation` is set to True.
-
-    Notes:
-        - The simulation uses the `base.simulation` function to generate results.
-        - The printed results help evaluate the system's warm-up performance, including queue lengths, waiting times, and completion rates for patients.
     """
 
     simulation = base.simulation(simulation_time, param, excel_creation)['Results']
 
-    print('--------------------------------------------------------------')
-    print('\nWarm Period Criteria:')
     print(f"Lq_Preoperative_Warm_Period = {simulation['Lq_Preoperative_Warm_Period']}")
     print(f"Wq_Preoperative_Warm_Period = {simulation['Wq_Preoperative_Warm_Period']}")
     print(f"Finished_Patients = {simulation['Finished_Patients']}")
+
+
+def warm_up_replication(simulation_time, r, param):
+    """
+    Runs multiple replications of a simulation to analyze warm-up periods and computes statistical summaries.
+
+    Args:
+        simulation_time (int): The total simulation duration in hours.
+        r (int): The number of replications to run.
+        param (dict): A dictionary of parameters used for the simulation.
+
+    Returns:
+        pd.DataFrame: A DataFrame where:
+            - Rows correspond to different performance metrics ('Lq_Preoperative_Warm_Period',
+              'Wq_Preoperative_Warm_Period', 'Finished_Patients').
+            - Columns correspond to individual replications and statistical summaries:
+                - 'mean': The average value across replications.
+                - 'std': The standard deviation across replications.
+                - 'R': The number of replications used.
+
+    Process:
+        - Runs the simulation `r` times, collecting data on:
+            - Preoperative queue length during the warm-up period ('Lq_Preoperative_Warm_Period').
+            - Preoperative waiting time during the warm-up period ('Wq_Preoperative_Warm_Period').
+            - Number of patients who finished their process ('Finished_Patients').
+        - Stores results in a dictionary and converts it into a Pandas DataFrame.
+        - Computes the mean and standard deviation for each metric.
+    """
+
+    # Initialize results dictionary
+    list_of_result = None
+
+    for i in tqdm(range(r)):
+        # Run the simulation
+        result = base.simulation(simulation_time, param)['Results']
+
+        # On the first iteration, initialize structures
+        if i == 0:
+            list_of_result = {key: [0] * r for key in ['Lq_Preoperative_Warm_Period',
+                                                       'Wq_Preoperative_Warm_Period', 'Finished_Patients']}
+
+        # Store the result for the current replication
+        for key in ['Lq_Preoperative_Warm_Period', 'Wq_Preoperative_Warm_Period', 'Finished_Patients']:
+            list_of_result[key][i] = result[key]
+
+    # Create a DataFrame where rows correspond to metrics and columns to replications
+    results = pd.DataFrame(list_of_result).transpose()
+    results.columns = [f"Replication{j + 1}" for j in range(r)]
+
+    # Calculate point estimate (mean) and confidence intervals for each metric
+    means = results.mean(axis=1)  # Point estimate
+    stds = results.std(axis=1)  # Standard deviation
+    results['mean'] = means
+    results['std'] = stds
+    results['R'] = r
+
+    return results
+
+
+def estimate_warm_up_metrics(first_system, second_system, alpha):
+    estimate_table = first_system[['mean', 'std', 'R']].merge(second_system[['mean', 'std', 'R']],
+                                                              how='inner', left_index=True, right_index=True)
+    estimate_table.columns = ['Y_bar_1', 'S_1', 'R_1', 'Y_bar_2', 'S_2', 'R_2']
+
+    # Standard Error (SE) calculation (fixed)
+    estimate_table['se'] = np.sqrt(((estimate_table['S_1'] ** 2) / estimate_table['R_1']) +
+                                   ((estimate_table['S_2'] ** 2) / estimate_table['R_2']))
+
+    # Compute v (fixed)
+    estimate_table['v'] = (
+        (
+            (estimate_table['S_1'] ** 2) / estimate_table['R_1'] +
+            (estimate_table['S_2'] ** 2) / estimate_table['R_2']
+        ) ** 2
+    ) / (
+        ((estimate_table['S_1'] ** 2) / estimate_table['R_1']) ** 2 / (estimate_table['R_1'] - 1) +
+        ((estimate_table['S_2'] ** 2) / estimate_table['R_2']) ** 2 / (estimate_table['R_2'] - 1)
+    )
+
+    # Compute Point Estimate
+    estimate_table['Point Estimate'] = estimate_table['Y_bar_1'] - estimate_table['Y_bar_2']
+
+    # Compute t_alpha row-wise
+    estimate_table['t_alpha'] = estimate_table['v'].apply(lambda v: t.ppf(1 - alpha / 2, df=v))
+
+    # Compute confidence interval half-width
+    estimate_table['ci_half_width'] = estimate_table['t_alpha'] * estimate_table['se']
+
+    # Compute Confidence Interval correctly
+    estimate_table['Confidence Interval'] = estimate_table.apply(
+        lambda row: f"[{round(row['Point Estimate'] - row['ci_half_width'], 3)}, {round(row['Point Estimate'] + row['ci_half_width'], 3)}]",
+        axis=1
+    )
+
+    # Select final columns
+    result = estimate_table[['Point Estimate', 'Confidence Interval']]
+
+    # Save to Excel with formatting
+    filename = 'systems_comparison_table.xlsx'
+    with pd.ExcelWriter(filename, engine='openpyxl') as writer:
+        result.to_excel(writer, sheet_name='Comparison', index=True)
+
+        workbook = writer.book
+        worksheet = workbook.active
+        font = Font(name='Times New Roman', size=12)
+
+        # Apply font and adjust column widths dynamically
+        for col in worksheet.columns:
+            max_length = 0
+            col_letter = col[0].column_letter  # Get column letter (e.g., A, B, C)
+
+            for cell in col:
+                cell.font = font
+                try:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+                except:
+                    pass
+
+            # Set column width based on max content length (with padding)
+            worksheet.column_dimensions[col_letter].width = max_length + 2
+
+        workbook.save(filename)
+
+    print(f"Results saved to {filename}.")
+    return result
 
 
 def calculate_aggregate_queue_waiting_time(start_time, end_time, patients_data):
@@ -316,13 +440,22 @@ simulate_and_plot(original_param, param_updates_2, simulation_config, '2nd Syste
 # Running the system over the long term to obtain metrics
 system1_param = original_param
 system1_param.update(param_updates_1)
+simulation_time_1 = ((300 * simulation_config['frame_length']) * 11)
+R1 = 10
 
 system2_param = original_param
 system2_param.update(param_updates_2)
+simulation_time_2 = ((300 * simulation_config['frame_length']) * 11)
+R2 = 10
 
-run_simulation((1650 * 24), system1_param)
-system1_param = replication((1650 * 24), 25, system1_param, 0.05)
+print('---------------------------------------------')
+print('Warm Period Criteria For 1st System:')
+run_simulation(simulation_time_1, system1_param)
 
-run_simulation((1650 * 24), system2_param)
-system2_result = replication((1650 * 24), 25, system2_param, 0.05)
+print('\n---------------------------------------------')
+print('Warm Period Criteria For 2nd System:')
+run_simulation(simulation_time_2, system2_param)
 
+warm_up_results1 = warm_up_replication(simulation_time_1, R1, system1_param)
+warm_up_results2 = warm_up_replication(simulation_time_2, R2, system2_param)
+estimate_warm_up_metrics(warm_up_results1, warm_up_results2, 0.05)

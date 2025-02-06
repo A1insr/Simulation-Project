@@ -300,7 +300,7 @@ def fel_maker(future_event_list, event_type, clock, data, param, patient=None, p
 
 
 def arrival(future_event_list, state, param, clock, data, patient, patient_type):
-    warm_up_time = 3600
+    warm_up_time = 5400
     if patient_type == 'Normal':  # Normal Patient
         data['Patients'][patient] = dict()
         data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
@@ -642,7 +642,7 @@ def laboratory_departure(future_event_list, state, param, clock, data, patient):
 
 
 def operation_arrival(future_event_list, state, param, clock, data, patient):
-    warm_up_time = 3600
+    warm_up_time = 5400
     data['Patients'][patient]['Operation Arrival Time'] = clock  # track every move of this patient
 
     if data['Patients'][patient]['Patient Type'] == 'Normal':  # if the patient is normal
@@ -1351,7 +1351,7 @@ def power_on(state, param):
 
 
 def end_of_service(future_event_list, state, param, clock, data, patient):
-    warm_up_time = 3600
+    warm_up_time = 5400
     #  End of "service". Update System Waiting Time and count number of patients.
     data['Cumulative Stats']['System Waiting Time'] += clock - data['Patients'][patient]['Arrival Time']
     data['Cumulative Stats']['Total Patients'] += 1
@@ -1547,7 +1547,7 @@ def get_col_widths(dataframe):
 
 
 def simulation(simulation_time, param, excel_creation=False):
-    warm_up_time = 3600
+    warm_up_time = 5400
     state, future_event_list, data = starting_state(param)
     clock = 0
     table = []  # a list of lists. Each inner list will be a row in the Excel output.
