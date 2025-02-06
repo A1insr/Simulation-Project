@@ -199,6 +199,12 @@ def starting_state(param: dict):
 
     data['Cumulative Stats']['Patients With Complex Surgery'] = 0
 
+    # Cumulative stats for warm period
+    data['Cumulative Stats']['Area Under Preoperative Queue Length Curve(warm period)'] = 0
+    data['Cumulative Stats']['Preoperative Queue Waiting Time(warm period)'] = 0
+    data['Cumulative Stats']['Preoperative Service Starters(warm period)'] = 0
+    data['Cumulative Stats']['Finished Patients'] = 0 
+
     # Set up a data structure to save required queue length by time
     # preoperative_queue_tracker = dict()  # keys are time, values are queue length
     data['preoperative_queue_tracker'] = dict()  # keys are time, values are queue length
@@ -294,6 +300,7 @@ def fel_maker(future_event_list, event_type, clock, data, param, patient=None, p
 
 
 def arrival(future_event_list, state, param, clock, data, patient, patient_type):
+    warm_up_time = 3600
     if patient_type == 'Normal':  # Normal Patient
         data['Patients'][patient] = dict()
         data['Patients'][patient]['Arrival Time'] = clock  # track every move of this patient
@@ -323,12 +330,26 @@ def arrival(future_event_list, state, param, clock, data, patient, patient_type)
             # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
             data['Cumulative Stats']['Preoperative Service Starters'] += 1
             data['Patients'][patient]['Time Preoperative Service Begins'] = clock  # track "every move" of this patient
+
+            # Calculation for warm period
+            if clock >= warm_up_time:
+                data['Cumulative Stats']['Preoperative Service Starters(warm period)'] += 1
+
             fel_maker(future_event_list, 'Laboratory Arrival', clock, data, param, patient)
 
         else:  # there is no empty bed -> wait in queue
             # Queue length changes, so calculate the area under the current rectangle
             data['Cumulative Stats']['Area Under Preoperative Queue Length Curve'] += \
                 (clock - data['Last Time Preoperative Queue Length Changed']) * (state['Preoperative Queue'])
+
+            # Calculation for warm period
+            if clock >= warm_up_time:
+                if data['Last Time Preoperative Queue Length Changed'] >= warm_up_time:
+                    data['Cumulative Stats']['Area Under Preoperative Queue Length Curve(warm period)'] += \
+                        (clock - data['Last Time Preoperative Queue Length Changed']) * (state['Preoperative Queue'])
+                else:
+                    data['Cumulative Stats']['Area Under Preoperative Queue Length Curve(warm period)'] += \
+                        (clock - warm_up_time) * (state['Preoperative Queue'])
 
             # Track preoperative queue length
             data['preoperative_queue_tracker'][data['Last Time Preoperative Queue Length Changed']] = state['Preoperative Queue']
@@ -621,6 +642,7 @@ def laboratory_departure(future_event_list, state, param, clock, data, patient):
 
 
 def operation_arrival(future_event_list, state, param, clock, data, patient):
+    warm_up_time = 3600
     data['Patients'][patient]['Operation Arrival Time'] = clock  # track every move of this patient
 
     if data['Patients'][patient]['Patient Type'] == 'Normal':  # if the patient is normal
@@ -667,6 +689,15 @@ def operation_arrival(future_event_list, state, param, clock, data, patient):
                 data['Cumulative Stats']['Area Under Preoperative Queue Length Curve'] += \
                     (clock - data['Last Time Preoperative Queue Length Changed']) * (state['Preoperative Queue'])
 
+                # Calculation for warm period
+                if clock >= warm_up_time:
+                    if data['Last Time Preoperative Queue Length Changed'] >= warm_up_time:
+                        data['Cumulative Stats']['Area Under Preoperative Queue Length Curve(warm period)'] += \
+                            (clock - data['Last Time Preoperative Queue Length Changed']) * (state['Preoperative Queue'])
+                    else:
+                        data['Cumulative Stats']['Area Under Preoperative Queue Length Curve(warm period)'] += \
+                            (clock - warm_up_time) * (state['Preoperative Queue'])
+
                 # Track preoperative queue length
                 data['preoperative_queue_tracker'][data['Last Time Preoperative Queue Length Changed']] = state['Preoperative Queue']
                 state['Preoperative Queue'] -= 1
@@ -689,6 +720,19 @@ def operation_arrival(future_event_list, state, param, clock, data, patient):
                 data['Cumulative Stats']['Preoperative Queue Waiting Time'] += \
                     (data['Patients'][first_patient_in_queue]['Time Preoperative Service Begins'] -
                      data['Patients'][first_patient_in_queue]['Arrival Time'])
+                    
+                # Calculation for warm period
+                if data['Patients'][first_patient_in_queue]['Time Preoperative Service Begins'] >= warm_up_time:
+                  # Calculation for warm period
+                    data['Cumulative Stats']['Preoperative Service Starters(warm period)'] += 1
+                    if data['Patients'][first_patient_in_queue]['Arrival Time'] >= warm_up_time:
+                        data['Cumulative Stats']['Preoperative Queue Waiting Time(warm period)'] += \
+                            (data['Patients'][first_patient_in_queue]['Time Preoperative Service Begins'] -
+                            data['Patients'][first_patient_in_queue]['Arrival Time'])
+                    else:
+                        data['Cumulative Stats']['Preoperative Queue Waiting Time(warm period)'] += \
+                            (data['Patients'][first_patient_in_queue]['Time Preoperative Service Begins'] -
+                            warm_up_time)
 
                 # Save the waiting time
                 data['Preoperative Queue Waiting Times'][first_patient_in_queue] = (
@@ -963,9 +1007,8 @@ def operation_departure(future_event_list, state, param, clock, data, patient):
     else:  # if the surgery type is complex
 
         if random.random() <= 0.1:  # if the patient dies
-            # data['Patients'].pop(patient, None)
+            data['Patients'].pop(patient, None)
             # data['Patients'][patient]['Time Service Ends'] = clock
-            pass
 
         else:  # the patient doesn't die
 
@@ -1308,6 +1351,7 @@ def power_on(state, param):
 
 
 def end_of_service(future_event_list, state, param, clock, data, patient):
+    warm_up_time = 3600
     #  End of "service". Update System Waiting Time and count number of patients.
     data['Cumulative Stats']['System Waiting Time'] += clock - data['Patients'][patient]['Arrival Time']
     data['Cumulative Stats']['Total Patients'] += 1
@@ -1317,7 +1361,10 @@ def end_of_service(future_event_list, state, param, clock, data, patient):
     #     'Time General Ward Service Begins']) * (state['General Ward Occupied Beds'] / param['General Ward Capacity'])
 
     # data['Patients'].pop(patient, None)
-    # data['Patients'][patient]['Time Service Ends'] = clock
+    data['Patients'][patient]['Time Service Ends'] = clock
+    if data['Patients'][patient]['Time Service Ends'] >= warm_up_time:
+        data['Cumulative Stats']['Finished Patients'] += 1
+        
 
     if state['General Ward Queue'] == 0:  # if there is no patient in the queue
         # Occupied Beds changes, so caculate Server busy time
@@ -1500,6 +1547,7 @@ def get_col_widths(dataframe):
 
 
 def simulation(simulation_time, param, excel_creation=False):
+    warm_up_time = 3600
     state, future_event_list, data = starting_state(param)
     clock = 0
     table = []  # a list of lists. Each inner list will be a row in the Excel output.
@@ -1828,5 +1876,22 @@ def simulation(simulation_time, param, excel_creation=False):
     else:
         Max_Lq_CCU = 0
     data['Results']['Max_Lq_CCU'] = Max_Lq_CCU
+
+    # Warm Period Criteria
+    # Lq
+    Lq_Preoperative_Warm_Period = data['Cumulative Stats']['Area Under Preoperative Queue Length Curve(warm period)'] / (simulation_time - warm_up_time)
+    data['Results']['Lq_Preoperative_Warm_Period'] = Lq_Preoperative_Warm_Period
+
+    # Wq
+    if data['Cumulative Stats']['Preoperative Service Starters(warm period)'] == 0: # avoiding division by zero error
+        Wq_Preoperative_Warm_Period = 0
+    else:
+        Wq_Preoperative_Warm_Period = data['Cumulative Stats']['Preoperative Queue Waiting Time(warm period)'] / data['Cumulative Stats'][
+            'Preoperative Service Starters(warm period)']
+    data['Results']['Wq_Preoperative_Warm_Period'] = Wq_Preoperative_Warm_Period
+
+    # Finished Patients
+    Finished_Patients = data['Cumulative Stats']['Finished Patients']
+    data['Results']['Finished_Patients'] = Finished_Patients
 
     return data
