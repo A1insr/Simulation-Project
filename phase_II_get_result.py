@@ -1,3 +1,4 @@
+import base
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -58,7 +59,7 @@ def run_simulation(simulation_time, param):
                - Average waiting times in queues.
                - Maximum waiting times in queues.
     """
-    simulation = base2.simulation(simulation_time, param, excel_creation=True)['Results']
+    simulation = base.simulation(simulation_time, param, excel_creation=True)['Results']
 
     print('--------------------------------------------------------------')
     print('Metrics:\n')
@@ -159,7 +160,7 @@ def replication(simulation_time, r, param, alpha):
 
     for i in tqdm(range(r)):
         # Run the simulation
-        result = base2.simulation(simulation_time, param)['Results']
+        result = base.simulation(simulation_time, param)['Results']
 
         # On the first iteration, initialize structures
         if i == 0:
@@ -267,7 +268,7 @@ def multi_sensitivity_analysis_with_individual_plots(simulation_time, param, ana
             metrics = []
 
             for _ in range(replications):
-                result = base2.simulation(simulation_time, param_copy)['Results']
+                result = base.simulation(simulation_time, param_copy)['Results']
                 metrics.append(result[metric])
 
             # Calculate statistics

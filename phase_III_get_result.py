@@ -1,4 +1,4 @@
-import base2
+import base
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib as mpl
@@ -136,7 +136,7 @@ def simulate_and_plot(param_updates, simulation_config):
     x = [i for i in range(1, num_of_frames + 1)]
 
     for replication in tqdm(range(1, num_of_replications + 1), desc="Simulating Replications"):
-        simulation_data = base2.simulation(simulation_time, original_param)
+        simulation_data = base.simulation(simulation_time, original_param)
         patients_data = simulation_data['Patients']
         preoperative_queue_data = simulation_data['preoperative_queue_tracker']
 
