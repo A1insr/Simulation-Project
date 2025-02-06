@@ -294,7 +294,7 @@ param_updates_1 = {
 }
 
 param_updates_2 = {
-    'Preoperative Capacity': 30,
+    'Preoperative Capacity': 32,
     'General Ward Capacity': 60,
     'CCU Capacity': 10,
     'Normal Operation Param': 30,
