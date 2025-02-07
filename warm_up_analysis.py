@@ -372,9 +372,9 @@ def simulate_and_plot(original_param, param_updates, simulation_config, system_n
 
     fig.subplots_adjust(hspace=0.4)
 
-    colors = ['red', 'black']
+    colors = ['blue', 'orange']
 
-    ax[0].plot(x, preoperative_queue_length_replication_average, colors[0], linewidth=3,
+    ax[0].plot(x, preoperative_queue_length_replication_average, colors[0], alpha=0.2, linewidth=3,
                label="Average across replications")
     ax[0].plot(x, preoperative_queue_length_moving_replication_average, colors[1], linestyle='dashed',
                label=f'Moving average (m = {window_size})')
@@ -385,7 +385,7 @@ def simulate_and_plot(original_param, param_updates, simulation_config, system_n
     ax[0].xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
     ax[0].grid(True, linestyle='--', alpha=0.5)
 
-    ax[1].plot(x, waiting_time_replication_average, colors[0], linewidth=3, label="Average across replications")
+    ax[1].plot(x, waiting_time_replication_average, colors[0], alpha=0.2, linewidth=3, label="Average across replications")
     ax[1].plot(x, waiting_time_moving_replication_average, colors[1], linestyle='dashed',
                label=f'Moving average (m = {window_size})')
     ax[1].set_title('Aggregate Waiting Time', fontsize=12)
@@ -395,7 +395,7 @@ def simulate_and_plot(original_param, param_updates, simulation_config, system_n
     ax[1].xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
     ax[1].grid(True, linestyle='--', alpha=0.5)
 
-    ax[2].plot(x, finishing_patients_replication_average, colors[0], linewidth=3, label="Average across replications")
+    ax[2].plot(x, finishing_patients_replication_average, colors[0], alpha=0.2, linewidth=3, label="Average across replications")
     ax[2].plot(x, finishing_patients_moving_replication_average, colors[1], linestyle='dashed',
                label=f'Moving average (m = {window_size})')
     ax[2].set_title('Number of Finishing Patients', fontsize=12)
@@ -405,8 +405,12 @@ def simulate_and_plot(original_param, param_updates, simulation_config, system_n
     ax[2].xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
     ax[2].grid(True, linestyle='--', alpha=0.5)
 
+    # Save each plot as a separate file
+    file_name = f'Warm-up analysis - {system_name}.svg'
+    plt.savefig(file_name, format="svg", bbox_inches="tight")
+    print(f"Saved plot as {file_name}")
     plt.show()
-    fig.savefig(f'Warm-up analysis - {system_name}.png', dpi=300, bbox_inches='tight')
+    plt.close()  # Close the figure to free memory
 
 
 param_updates_1 = {
@@ -449,13 +453,15 @@ simulation_time_2 = ((300 * simulation_config['frame_length']) * 11)
 R2 = 10
 
 print('---------------------------------------------')
-print('Warm Period Criteria For 1st System:')
+print('Warm Period Metrics For 1st System:')
 run_simulation(simulation_time_1, system1_param)
 
 print('\n---------------------------------------------')
-print('Warm Period Criteria For 2nd System:')
+print('Warm Period Metrics For 2nd System:')
 run_simulation(simulation_time_2, system2_param)
 
 warm_up_results1 = warm_up_replication(simulation_time_1, R1, system1_param)
 warm_up_results2 = warm_up_replication(simulation_time_2, R2, system2_param)
+print('\n---------------------------------------------')
+print('Point Estimate & Confidence Interval For These Metrics:')
 estimate_warm_up_metrics(warm_up_results1, warm_up_results2, 0.05)
