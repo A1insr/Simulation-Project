@@ -59,7 +59,6 @@ Authors: Arman Maghsoudi & Ali Nasr
 Date: Winter 2025
 """
 
-
 import random
 import math
 import numpy as np
@@ -203,7 +202,7 @@ def starting_state(param: dict):
     data['Cumulative Stats']['Area Under Preoperative Queue Length Curve(warm period)'] = 0
     data['Cumulative Stats']['Preoperative Queue Waiting Time(warm period)'] = 0
     data['Cumulative Stats']['Preoperative Service Starters(warm period)'] = 0
-    data['Cumulative Stats']['Finished Patients'] = 0 
+    data['Cumulative Stats']['Finished Patients'] = 0
 
     # Set up a data structure to save required queue length by time
     # preoperative_queue_tracker = dict()  # keys are time, values are queue length
@@ -318,15 +317,16 @@ def arrival(future_event_list, state, param, clock, data, patient, patient_type)
             data['Cumulative Stats']['Patients With Complex Surgery'] += 1
 
         if state['Preoperative Occupied Beds'] < param['Preoperative Capacity']:  # if there is an empty bed
-            # Occupied Beds changes, so caculate Server busy time
+            # Occupied Beds changes, so calculate Server busy time
             data['Cumulative Stats']['Preoperative Server Busy Time'] += \
-                (clock - data['Last Time Preoperative Occupied Beds Changed']) * (state['Preoperative Occupied Beds'] / param['Preoperative Capacity'])
+                (clock - data['Last Time Preoperative Occupied Beds Changed']) * (state['Preoperative Occupied Beds']
+                                                                                  / param['Preoperative Capacity'])
 
             # Update Occupied Beds
             state['Preoperative Occupied Beds'] += 1
             # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
             data['Last Time Preoperative Occupied Beds Changed'] = clock
-            
+
             # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
             data['Cumulative Stats']['Preoperative Service Starters'] += 1
             data['Patients'][patient]['Time Preoperative Service Begins'] = clock  # track "every move" of this patient
@@ -352,7 +352,8 @@ def arrival(future_event_list, state, param, clock, data, patient, patient_type)
                         (clock - warm_up_time) * (state['Preoperative Queue'])
 
             # Track preoperative queue length
-            data['preoperative_queue_tracker'][data['Last Time Preoperative Queue Length Changed']] = state['Preoperative Queue']
+            data['preoperative_queue_tracker'][data['Last Time Preoperative Queue Length Changed']] = \
+                state['Preoperative Queue']
             state['Preoperative Queue'] += 1
             data['Preoperative Queue Patients'][patient] = clock  # add this patient to the queue
             data['Preoperative Queue Lengths'][clock] = state['Preoperative Queue']  # Save queue length
@@ -405,10 +406,11 @@ def arrival(future_event_list, state, param, clock, data, patient, patient_type)
                     data['Last Time Emergency Queue Length Changed'] = clock
 
                 else:  # there is at least one empty bed
-                    # Occupied Beds changes, so caculate Server busy time
+                    # Occupied Beds changes, so calculate Server busy time
                     data['Cumulative Stats']['Emergency Server Busy Time'] += \
-                        (clock - data['Last Time Emergency Occupied Beds Changed']) * (state['Emergency Occupied Beds'] / param['Emergency Capacity'])
-        
+                        ((clock - data['Last Time Emergency Occupied Beds Changed']) *
+                         (state['Emergency Occupied Beds'] / param['Emergency Capacity']))
+
                     # Update Occupied Beds
                     state['Emergency Occupied Beds'] += 1
                     # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
@@ -434,7 +436,8 @@ def arrival(future_event_list, state, param, clock, data, patient, patient_type)
             epsilon = 1e-10
             GroupNumber = random.randint(2, 5)
 
-            if (param['Emergency Capacity'] - state['Emergency Occupied Beds']) >= GroupNumber:  # if there are enough empty beds
+            if (param['Emergency Capacity'] - state[
+                'Emergency Occupied Beds']) >= GroupNumber:  # if there are enough empty beds
                 for i in range(GroupNumber):
                     data['Patients']['P' + str(int(patient[1:]) + i)] = dict()
                     # track every move of this patient
@@ -463,8 +466,9 @@ def arrival(future_event_list, state, param, clock, data, patient, patient_type)
 
                     # Occupied Beds changes, so caculate Server busy time
                     data['Cumulative Stats']['Emergency Server Busy Time'] += \
-                        (clock - data['Last Time Emergency Occupied Beds Changed']) * (state['Emergency Occupied Beds'] / param['Emergency Capacity'])
-        
+                        ((clock - data['Last Time Emergency Occupied Beds Changed']) *
+                         (state['Emergency Occupied Beds'] / param['Emergency Capacity']))
+
                     # Update Occupied Beds
                     state['Emergency Occupied Beds'] += 1
                     # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
@@ -489,9 +493,10 @@ def laboratory_arrival(future_event_list, state, param, clock, data, patient):
     if data['Patients'][patient]['Patient Type'] == 'Normal':  # if the patient is normal
 
         if state['Laboratory Occupied Beds'] < param['Laboratory Capacity']:  # if there is an empty bed
-            # Occupied Beds changes, so caculate Server busy time
+            # Occupied Beds changes, so calculate Server busy time
             data['Cumulative Stats']['Laboratory Server Busy Time'] += \
-                (clock - data['Last Time Laboratory Occupied Beds Changed']) * (state['Laboratory Occupied Beds'] / param['Laboratory Capacity'])
+                ((clock - data['Last Time Laboratory Occupied Beds Changed']) *
+                 (state['Laboratory Occupied Beds'] / param['Laboratory Capacity']))
 
             # Update Occupied Beds
             state['Laboratory Occupied Beds'] += 1
@@ -517,9 +522,10 @@ def laboratory_arrival(future_event_list, state, param, clock, data, patient):
     else:  # if the patient is urgent
 
         if state['Laboratory Occupied Beds'] < param['Laboratory Capacity']:  # if there is an empty bed
-            # Occupied Beds changes, so caculate Server busy time
+            # Occupied Beds changes, so calculate Server busy time
             data['Cumulative Stats']['Laboratory Server Busy Time'] += \
-                (clock - data['Last Time Laboratory Occupied Beds Changed']) * (state['Laboratory Occupied Beds'] / param['Laboratory Capacity'])
+                ((clock - data['Last Time Laboratory Occupied Beds Changed']) *
+                 (state['Laboratory Occupied Beds'] / param['Laboratory Capacity']))
 
             # Update Occupied Beds
             state['Laboratory Occupied Beds'] += 1
@@ -546,26 +552,13 @@ def laboratory_arrival(future_event_list, state, param, clock, data, patient):
 def laboratory_departure(future_event_list, state, param, clock, data, patient):
     fel_maker(future_event_list, 'Operation Arrival', clock, data, param, patient)
 
-    # if data['Patients'][patient]['Patient Type'] == 'Normal':  # if the patient is normal
-        # End of Preoperative Service Update Server Busy Time
-    #     data['Cumulative Stats']['Preoperative Server Busy Time'] += (clock - data['Patients'][patient][
-    #        'Time Preoperative Service Begins']) * (state['Preoperative Occupied Beds'] / param['Preoperative Capacity'])
-
-    # else:  # if the patient is urgent
-    #    # End of Emergency Service Update Server Busy Time
-    #    data['Cumulative Stats']['Emergency Server Busy Time'] += (clock - data['Patients'][patient][
-    #        'Time Emergency Service Begins']) * (state['Emergency Occupied Beds'] / param['Emergency Capacity'])
-
-    # End of Laboratory Service Update Server Busy Time
-    # data['Cumulative Stats']['Laboratory Server Busy Time'] += (clock - data['Patients'][patient][
-    #     'Time Laboratory Service Begins']) * (state['Laboratory Occupied Beds'] / param['Laboratory Capacity'])
-
     if state['Laboratory Urgent Queue'] == 0:  # if there is no urgent patient in the queue
 
         if state['Laboratory Normal Queue'] == 0:  # if there is no normal patient in the queue
-            # Occupied Beds changes, so caculate Server busy time
+            # Occupied Beds changes, so calculate Server busy time
             data['Cumulative Stats']['Laboratory Server Busy Time'] += \
-                (clock - data['Last Time Laboratory Occupied Beds Changed']) * (state['Laboratory Occupied Beds'] / param['Laboratory Capacity'])
+                ((clock - data['Last Time Laboratory Occupied Beds Changed']) *
+                 (state['Laboratory Occupied Beds'] / param['Laboratory Capacity']))
 
             # Update Occupied Beds
             state['Laboratory Occupied Beds'] -= 1
@@ -660,9 +653,10 @@ def operation_arrival(future_event_list, state, param, clock, data, patient):
             data['Last Time Surgery Normal Queue Length Changed'] = clock
 
         else:  # there is an empty bed
-            # Occupied Beds changes, so caculate Server busy time
+            # Occupied Beds changes, so calculate Server busy time
             data['Cumulative Stats']['Operation Server Busy Time'] += \
-                (clock - data['Last Time Operation Occupied Beds Changed']) * (state['Operation Occupied Beds'] / param['Operation Capacity'])
+                ((clock - data['Last Time Operation Occupied Beds Changed']) *
+                 (state['Operation Occupied Beds'] / param['Operation Capacity']))
 
             # Update Occupied Beds
             state['Operation Occupied Beds'] += 1
@@ -675,10 +669,11 @@ def operation_arrival(future_event_list, state, param, clock, data, patient):
             fel_maker(future_event_list, 'Operation Departure', clock, data, param, patient)
 
             if state['Preoperative Queue'] == 0:  # if there is no patient in the preoperative queue
-                 # Occupied Beds changes, so caculate Server busy time
+                # Occupied Beds changes, so calculate Server busy time
                 data['Cumulative Stats']['Preoperative Server Busy Time'] += \
-                    (clock - data['Last Time Preoperative Occupied Beds Changed']) * (state['Preoperative Occupied Beds'] / param['Preoperative Capacity'])
-    
+                    ((clock - data['Last Time Preoperative Occupied Beds Changed']) *
+                     (state['Preoperative Occupied Beds'] / param['Preoperative Capacity']))
+
                 # Update Occupied Beds
                 state['Preoperative Occupied Beds'] -= 1
                 # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
@@ -693,13 +688,15 @@ def operation_arrival(future_event_list, state, param, clock, data, patient):
                 if clock >= warm_up_time:
                     if data['Last Time Preoperative Queue Length Changed'] >= warm_up_time:
                         data['Cumulative Stats']['Area Under Preoperative Queue Length Curve(warm period)'] += \
-                            (clock - data['Last Time Preoperative Queue Length Changed']) * (state['Preoperative Queue'])
+                            (clock - data['Last Time Preoperative Queue Length Changed']) * (
+                            state['Preoperative Queue'])
                     else:
                         data['Cumulative Stats']['Area Under Preoperative Queue Length Curve(warm period)'] += \
                             (clock - warm_up_time) * (state['Preoperative Queue'])
 
                 # Track preoperative queue length
-                data['preoperative_queue_tracker'][data['Last Time Preoperative Queue Length Changed']] = state['Preoperative Queue']
+                data['preoperative_queue_tracker'][data['Last Time Preoperative Queue Length Changed']] = state[
+                    'Preoperative Queue']
                 state['Preoperative Queue'] -= 1
                 data['Preoperative Queue Lengths'][clock] = state['Preoperative Queue']  # Save queue length
 
@@ -720,19 +717,19 @@ def operation_arrival(future_event_list, state, param, clock, data, patient):
                 data['Cumulative Stats']['Preoperative Queue Waiting Time'] += \
                     (data['Patients'][first_patient_in_queue]['Time Preoperative Service Begins'] -
                      data['Patients'][first_patient_in_queue]['Arrival Time'])
-                    
+
                 # Calculation for warm period
                 if data['Patients'][first_patient_in_queue]['Time Preoperative Service Begins'] >= warm_up_time:
-                  # Calculation for warm period
+                    # Calculation for warm period
                     data['Cumulative Stats']['Preoperative Service Starters(warm period)'] += 1
                     if data['Patients'][first_patient_in_queue]['Arrival Time'] >= warm_up_time:
                         data['Cumulative Stats']['Preoperative Queue Waiting Time(warm period)'] += \
                             (data['Patients'][first_patient_in_queue]['Time Preoperative Service Begins'] -
-                            data['Patients'][first_patient_in_queue]['Arrival Time'])
+                             data['Patients'][first_patient_in_queue]['Arrival Time'])
                     else:
                         data['Cumulative Stats']['Preoperative Queue Waiting Time(warm period)'] += \
                             (data['Patients'][first_patient_in_queue]['Time Preoperative Service Begins'] -
-                            warm_up_time)
+                             warm_up_time)
 
                 # Save the waiting time
                 data['Preoperative Queue Waiting Times'][first_patient_in_queue] = (
@@ -759,7 +756,8 @@ def operation_arrival(future_event_list, state, param, clock, data, patient):
         else:  # there is an empty bed
             # Occupied Beds changes, so caculate Server busy time
             data['Cumulative Stats']['Operation Server Busy Time'] += \
-                (clock - data['Last Time Operation Occupied Beds Changed']) * (state['Operation Occupied Beds'] / param['Operation Capacity'])
+                (clock - data['Last Time Operation Occupied Beds Changed']) * (
+                            state['Operation Occupied Beds'] / param['Operation Capacity'])
 
             # Update Occupied Beds
             state['Operation Occupied Beds'] += 1
@@ -774,8 +772,9 @@ def operation_arrival(future_event_list, state, param, clock, data, patient):
             if state['Emergency Queue'] == 0:  # if there is no patient in the emergency queue
                 # Occupied Beds changes, so caculate Server busy time
                 data['Cumulative Stats']['Emergency Server Busy Time'] += \
-                    (clock - data['Last Time Emergency Occupied Beds Changed']) * (state['Emergency Occupied Beds'] / param['Emergency Capacity'])
-    
+                    (clock - data['Last Time Emergency Occupied Beds Changed']) * (
+                                state['Emergency Occupied Beds'] / param['Emergency Capacity'])
+
                 # Update Occupied Beds
                 state['Emergency Occupied Beds'] -= 1
                 # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
@@ -869,10 +868,6 @@ def operation_arrival(future_event_list, state, param, clock, data, patient):
 
 
 def operation_departure(future_event_list, state, param, clock, data, patient):
-    # End of Operation Service Update Server Busy Time
-    # data['Cumulative Stats']['Operation Server Busy Time'] += (clock - data['Patients'][patient][
-    #     'Time Operation Service Begins']) * (state['Operation Occupied Beds'] / param['Operation Capacity'])
-
     if data['Patients'][patient]['Surgery Type'] == 'Simple':  # if the surgery type is simple
 
         data['Patients'][patient]['Unit Type'] = 'General Ward'
@@ -891,9 +886,10 @@ def operation_departure(future_event_list, state, param, clock, data, patient):
             data['Last Time General Ward Queue Length Changed'] = clock
 
         else:  # there is an empty bed
-            # Occupied Beds changes, so caculate Server busy time
+            # Occupied Beds changes, so calculate Server busy time
             data['Cumulative Stats']['General Ward Server Busy Time'] += \
-                (clock - data['Last Time General Ward Occupied Beds Changed']) * (state['General Ward Occupied Beds'] / param['General Ward Capacity'])
+                ((clock - data['Last Time General Ward Occupied Beds Changed']) *
+                 (state['General Ward Occupied Beds'] / param['General Ward Capacity']))
 
             # Update Occupied Beds
             state['General Ward Occupied Beds'] += 1
@@ -924,10 +920,11 @@ def operation_departure(future_event_list, state, param, clock, data, patient):
                 data['Last Time General Ward Queue Length Changed'] = clock
 
             else:  # there is an empty bed
-                # Occupied Beds changes, so caculate Server busy time
+                # Occupied Beds changes, so calculate Server busy time
                 data['Cumulative Stats']['General Ward Server Busy Time'] += \
-                    (clock - data['Last Time General Ward Occupied Beds Changed']) * (state['General Ward Occupied Beds'] / param['General Ward Capacity'])
-    
+                    ((clock - data['Last Time General Ward Occupied Beds Changed']) *
+                     (state['General Ward Occupied Beds'] / param['General Ward Capacity']))
+
                 # Update Occupied Beds
                 state['General Ward Occupied Beds'] += 1
                 # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
@@ -956,10 +953,11 @@ def operation_departure(future_event_list, state, param, clock, data, patient):
                 data['Last Time ICU Queue Length Changed'] = clock
 
             else:  # there is an empty bed
-                # Occupied Beds changes, so caculate Server busy time
+                # Occupied Beds changes, so calculate Server busy time
                 data['Cumulative Stats']['ICU Server Busy Time'] += \
-                    (clock - data['Last Time ICU Occupied Beds Changed']) * (state['ICU Occupied Beds'] / param['ICU Capacity'])
-    
+                    ((clock - data['Last Time ICU Occupied Beds Changed']) *
+                     (state['ICU Occupied Beds'] / param['ICU Capacity']))
+
                 # Update Occupied Beds
                 state['ICU Occupied Beds'] += 1
                 # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
@@ -989,10 +987,11 @@ def operation_departure(future_event_list, state, param, clock, data, patient):
                 data['Last Time CCU Queue Length Changed'] = clock
 
             else:  # there is an empty bed
-                # Occupied Beds changes, so caculate Server busy time
+                # Occupied Beds changes, so calculate Server busy time
                 data['Cumulative Stats']['CCU Server Busy Time'] += \
-                    (clock - data['Last Time CCU Occupied Beds Changed']) * (state['CCU Occupied Beds'] / param['CCU Capacity'])
-    
+                    ((clock - data['Last Time CCU Occupied Beds Changed']) *
+                     (state['CCU Occupied Beds'] / param['CCU Capacity']))
+
                 # Update Occupied Beds
                 state['CCU Occupied Beds'] += 1
                 # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
@@ -1030,10 +1029,11 @@ def operation_departure(future_event_list, state, param, clock, data, patient):
                     data['Last Time ICU Queue Length Changed'] = clock
 
                 else:  # there is an empty bed
-                    # Occupied Beds changes, so caculate Server busy time
+                    # Occupied Beds changes, so calculate Server busy time
                     data['Cumulative Stats']['ICU Server Busy Time'] += \
-                        (clock - data['Last Time ICU Occupied Beds Changed']) * (state['ICU Occupied Beds'] / param['ICU Capacity'])
-        
+                        ((clock - data['Last Time ICU Occupied Beds Changed']) *
+                         (state['ICU Occupied Beds'] / param['ICU Capacity']))
+
                     # Update Occupied Beds
                     state['ICU Occupied Beds'] += 1
                     # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
@@ -1062,10 +1062,11 @@ def operation_departure(future_event_list, state, param, clock, data, patient):
                     data['Last Time CCU Queue Length Changed'] = clock
 
                 else:  # there is an empty bed
-                    # Occupied Beds changes, so caculate Server busy time
+                    # Occupied Beds changes, so calculate Server busy time
                     data['Cumulative Stats']['CCU Server Busy Time'] += \
-                        (clock - data['Last Time CCU Occupied Beds Changed']) * (state['CCU Occupied Beds'] / param['CCU Capacity'])
-        
+                        ((clock - data['Last Time CCU Occupied Beds Changed']) *
+                         (state['CCU Occupied Beds'] / param['CCU Capacity']))
+
                     # Update Occupied Beds
                     state['CCU Occupied Beds'] += 1
                     # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
@@ -1080,9 +1081,10 @@ def operation_departure(future_event_list, state, param, clock, data, patient):
     if state['Surgery Urgent Queue'] == 0:  # if there is no urgent patient in the queue
 
         if state['Surgery Normal Queue'] == 0:  # if there is no normal patient in the queue
-            # Occupied Beds changes, so caculate Server busy time
+            # Occupied Beds changes, so calculate Server busy time
             data['Cumulative Stats']['Operation Server Busy Time'] += \
-                (clock - data['Last Time Operation Occupied Beds Changed']) * (state['Operation Occupied Beds'] / param['Operation Capacity'])
+                ((clock - data['Last Time Operation Occupied Beds Changed']) *
+                 (state['Operation Occupied Beds'] / param['Operation Capacity']))
 
             # Update Occupied Beds
             state['Operation Occupied Beds'] -= 1
@@ -1168,8 +1170,8 @@ def care_unit_departure(future_event_list, state, param, clock, data, patient):
 
     else:
         data['Patients'][patient]['General Ward Arrival Time'] = clock  # track every move of this patient
-        if state['General Ward Occupied Beds'] == param['General Ward Capacity']:  # if there is no empty bed in the general ward
-
+        # if there is no empty bed in the general ward
+        if state['General Ward Occupied Beds'] == param['General Ward Capacity']:
             # Queue length changes, so calculate the area under the current rectangle
             data['Cumulative Stats']['Area Under General Ward Queue Length Curve'] += \
                 (clock - data['Last Time General Ward Queue Length Changed']) * (state['General Ward Queue'])
@@ -1182,9 +1184,10 @@ def care_unit_departure(future_event_list, state, param, clock, data, patient):
             data['Last Time General Ward Queue Length Changed'] = clock
 
         else:  # there is an empty bed
-            # Occupied Beds changes, so caculate Server busy time
+            # Occupied Beds changes, so calculate Server busy time
             data['Cumulative Stats']['General Ward Server Busy Time'] += \
-                (clock - data['Last Time General Ward Occupied Beds Changed']) * (state['General Ward Occupied Beds'] / param['General Ward Capacity'])
+                ((clock - data['Last Time General Ward Occupied Beds Changed']) *
+                 (state['General Ward Occupied Beds'] / param['General Ward Capacity']))
 
             # Update Occupied Beds
             state['General Ward Occupied Beds'] += 1
@@ -1198,14 +1201,11 @@ def care_unit_departure(future_event_list, state, param, clock, data, patient):
     if data['Patients'][patient]['Unit Type'] == 'ICU':  # if the unit where the patient was hospitalized is ICU
         data['ICU Patients'].remove(patient)
 
-        # End of ICU Service Update Server Busy Time
-        # data['Cumulative Stats']['ICU Server Busy Time'] += (clock - data['Patients'][patient][
-        #     'Time ICU Service Begins']) * (state['ICU Occupied Beds'] / param['ICU Capacity'])
-
         if state['ICU Queue'] == 0:  # if there is no patient in the ICU queue
-            # Occupied Beds changes, so caculate Server busy time
+            # Occupied Beds changes, so calculate Server busy time
             data['Cumulative Stats']['ICU Server Busy Time'] += \
-                (clock - data['Last Time ICU Occupied Beds Changed']) * (state['ICU Occupied Beds'] / param['ICU Capacity'])
+                ((clock - data['Last Time ICU Occupied Beds Changed']) *
+                 (state['ICU Occupied Beds'] / param['ICU Capacity']))
 
             # Update Occupied Beds
             state['ICU Occupied Beds'] -= 1
@@ -1255,15 +1255,16 @@ def care_unit_departure(future_event_list, state, param, clock, data, patient):
         #    'Time CCU Service Begins']) * (state['CCU Occupied Beds'] / param['CCU Capacity'])
 
         if state['CCU Queue'] == 0:  # if there is no patient in the CCU queue
-            # Occupied Beds changes, so caculate Server busy time
+            # Occupied Beds changes, so calculate Server busy time
             data['Cumulative Stats']['CCU Server Busy Time'] += \
-                (clock - data['Last Time CCU Occupied Beds Changed']) * (state['CCU Occupied Beds'] / param['CCU Capacity'])
+                ((clock - data['Last Time CCU Occupied Beds Changed']) *
+                 (state['CCU Occupied Beds'] / param['CCU Capacity']))
 
             # Update Occupied Beds
             state['CCU Occupied Beds'] -= 1
             # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
             data['Last Time CCU Occupied Beds Changed'] = clock
-            
+
 
         else:  # there is at least one patient in the queue
             # Queue length changes, so calculate the area under the current rectangle
@@ -1306,7 +1307,8 @@ def condition_deterioration(future_event_list, state, param, clock, data, patien
 
     data['Patients'][patient]['Operation Arrival Time'] = clock  # track every move of this patient
 
-    if state['Operation Occupied Beds'] == param['Operation Capacity']:  # if there is no empty bed in the operation room
+    # if there is no empty bed in the operation room
+    if state['Operation Occupied Beds'] == param['Operation Capacity']:
         # Queue length changes, so calculate the area under the current rectangle
         data['Cumulative Stats']['Area Under Surgery Urgent Queue Length Curve'] += \
             (clock - data['Last Time Surgery Urgent Queue Length Changed']) * (state['Surgery Urgent Queue'])
@@ -1319,15 +1321,16 @@ def condition_deterioration(future_event_list, state, param, clock, data, patien
         data['Last Time Surgery Urgent Queue Length Changed'] = clock
 
     else:  # there is an empty bed
-        # Occupied Beds changes, so caculate Server busy time
+        # Occupied Beds changes, so calculate Server busy time
         data['Cumulative Stats']['Operation Server Busy Time'] += \
-            (clock - data['Last Time Operation Occupied Beds Changed']) * (state['Operation Occupied Beds'] / param['Operation Capacity'])
+            ((clock - data['Last Time Operation Occupied Beds Changed']) *
+             (state['Operation Occupied Beds'] / param['Operation Capacity']))
 
         # Update Occupied Beds
         state['Operation Occupied Beds'] += 1
         # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
         data['Last Time Operation Occupied Beds Changed'] = clock
-        
+
         # Someone just started getting service. Update 'Service Starters' (Needed to calculate Wq)
         data['Cumulative Stats']['Operation Urgent Service Starters'] += 1
         data['Patients'][patient]['Time Operation Service Begins'] = clock  # track "every move" of this patient
@@ -1356,26 +1359,20 @@ def end_of_service(future_event_list, state, param, clock, data, patient):
     data['Cumulative Stats']['System Waiting Time'] += clock - data['Patients'][patient]['Arrival Time']
     data['Cumulative Stats']['Total Patients'] += 1
 
-    # End of General Ward Service Update Server Busy Time
-    # data['Cumulative Stats']['General Ward Server Busy Time'] += (clock - data['Patients'][patient][
-    #     'Time General Ward Service Begins']) * (state['General Ward Occupied Beds'] / param['General Ward Capacity'])
-
-    # data['Patients'].pop(patient, None)
     data['Patients'][patient]['Time Service Ends'] = clock
     if data['Patients'][patient]['Time Service Ends'] >= warm_up_time:
         data['Cumulative Stats']['Finished Patients'] += 1
-        
 
     if state['General Ward Queue'] == 0:  # if there is no patient in the queue
-        # Occupied Beds changes, so caculate Server busy time
+        # Occupied Beds changes, so calculate Server busy time
         data['Cumulative Stats']['General Ward Server Busy Time'] += \
-            (clock - data['Last Time General Ward Occupied Beds Changed']) * (state['General Ward Occupied Beds'] / param['General Ward Capacity'])
+            ((clock - data['Last Time General Ward Occupied Beds Changed']) *
+             (state['General Ward Occupied Beds'] / param['General Ward Capacity']))
 
         # Update Occupied Beds
         state['General Ward Occupied Beds'] -= 1
         # Occupied Beds just changed. Update 'Last Time Occupied Beds Changed'
         data['Last Time General Ward Occupied Beds Changed'] = clock
-        
 
     else:  # there is at least one patient in the queue
         # Queue length changes, so calculate the area under the current rectangle
@@ -1410,17 +1407,6 @@ def end_of_service(future_event_list, state, param, clock, data, patient):
 
         # Schedule 'End of Service' for this patient
         fel_maker(future_event_list, 'End of Service', clock, data, param, first_patient_in_queue)
-
-
-# def print_header():
-#     print('Event Type'.ljust(20) + '\t' + 'Time'.ljust(15) + '\t' +
-#           'Queue Length'.ljust(15) + '\t' + 'Server Status'.ljust(25))
-#     print('-------------------------------------------------------------------------------------------------')
-
-
-# def nice_print(current_state, current_event):
-#     print(str(current_event['Event Type']).ljust(20) + '\t' + str(round(current_event['Event Time'], 3)).ljust(15) +
-#           '\t' + str(current_state['Queue Length']).ljust(15) + '\t' + str(current_state['Server Status']).ljust(25))
 
 
 def create_row(step, current_event, state, data, future_event_list):
@@ -1598,21 +1584,28 @@ def simulation(simulation_time, param, excel_creation=False):
             future_event_list.remove(current_event)
 
         else:
-            # Update utilitization for the last time!
+            # Update utilization for the last time!
             data['Cumulative Stats']['Preoperative Server Busy Time'] += \
-                (clock - data['Last Time Preoperative Occupied Beds Changed']) * (state['Preoperative Occupied Beds'] / param['Preoperative Capacity'])
+                (clock - data['Last Time Preoperative Occupied Beds Changed']) * (
+                            state['Preoperative Occupied Beds'] / param['Preoperative Capacity'])
             data['Cumulative Stats']['Emergency Server Busy Time'] += \
-                (clock - data['Last Time Emergency Occupied Beds Changed']) * (state['Emergency Occupied Beds'] / param['Emergency Capacity'])
+                (clock - data['Last Time Emergency Occupied Beds Changed']) * (
+                            state['Emergency Occupied Beds'] / param['Emergency Capacity'])
             data['Cumulative Stats']['Laboratory Server Busy Time'] += \
-                (clock - data['Last Time Laboratory Occupied Beds Changed']) * (state['Laboratory Occupied Beds'] / param['Laboratory Capacity'])
+                (clock - data['Last Time Laboratory Occupied Beds Changed']) * (
+                            state['Laboratory Occupied Beds'] / param['Laboratory Capacity'])
             data['Cumulative Stats']['Operation Server Busy Time'] += \
-                (clock - data['Last Time Operation Occupied Beds Changed']) * (state['Operation Occupied Beds'] / param['Operation Capacity'])
+                (clock - data['Last Time Operation Occupied Beds Changed']) * (
+                            state['Operation Occupied Beds'] / param['Operation Capacity'])
             data['Cumulative Stats']['General Ward Server Busy Time'] += \
-                (clock - data['Last Time General Ward Occupied Beds Changed']) * (state['General Ward Occupied Beds'] / param['General Ward Capacity'])
+                (clock - data['Last Time General Ward Occupied Beds Changed']) * (
+                            state['General Ward Occupied Beds'] / param['General Ward Capacity'])
             data['Cumulative Stats']['ICU Server Busy Time'] += \
-                (clock - data['Last Time ICU Occupied Beds Changed']) * (state['ICU Occupied Beds'] / param['ICU Capacity'])
+                (clock - data['Last Time ICU Occupied Beds Changed']) * (
+                            state['ICU Occupied Beds'] / param['ICU Capacity'])
             data['Cumulative Stats']['CCU Server Busy Time'] += \
-                (clock - data['Last Time CCU Occupied Beds Changed']) * (state['CCU Occupied Beds'] / param['CCU Capacity'])
+                (clock - data['Last Time CCU Occupied Beds Changed']) * (
+                            state['CCU Occupied Beds'] / param['CCU Capacity'])
             future_event_list.clear()
 
         # create a row in the table
@@ -1626,7 +1619,7 @@ def simulation(simulation_time, param, excel_creation=False):
 
     # Criteria_1
     if data['Cumulative Stats']['Total Patients'] == 0:  # avoiding division by zero error
-         average_time_in_system = 0
+        average_time_in_system = 0
     else:
         average_time_in_system = data['Cumulative Stats']['System Waiting Time'] / data['Cumulative Stats'][
             'Total Patients']
@@ -1652,7 +1645,8 @@ def simulation(simulation_time, param, excel_creation=False):
         immediately_admitted_emergency_patients_percentage = (data['Cumulative Stats'][
                                                                   'Number of Immediately Admitted Emergency Patients']
                                                               / data['Cumulative Stats']['Emergency Patients']) * 100
-    data['Results']['immediately_admitted_emergency_patients_percentage'] = immediately_admitted_emergency_patients_percentage
+    data['Results'][
+        'immediately_admitted_emergency_patients_percentage'] = immediately_admitted_emergency_patients_percentage
 
     # Criteria_5
     rho_Emergency = data['Cumulative Stats']['Emergency Server Busy Time'] / simulation_time
@@ -1706,62 +1700,66 @@ def simulation(simulation_time, param, excel_creation=False):
     data['Results']['Lq_CCU'] = Lq_CCU
 
     # Average Waiting Time in each queue
-    if data['Cumulative Stats']['Emergency Service Starters'] == 0: # avoiding division by zero error
+    if data['Cumulative Stats']['Emergency Service Starters'] == 0:  # avoiding division by zero error
         Wq_Emergency = 0
     else:
         Wq_Emergency = data['Cumulative Stats']['Emergency Queue Waiting Time'] / data['Cumulative Stats'][
             'Emergency Service Starters']
     data['Results']['Wq_Emergency'] = Wq_Emergency
 
-    if data['Cumulative Stats']['Preoperative Service Starters'] == 0: # avoiding division by zero error
+    if data['Cumulative Stats']['Preoperative Service Starters'] == 0:  # avoiding division by zero error
         Wq_Preoperative = 0
     else:
         Wq_Preoperative = data['Cumulative Stats']['Preoperative Queue Waiting Time'] / data['Cumulative Stats'][
             'Preoperative Service Starters']
     data['Results']['Wq_Preoperative'] = Wq_Preoperative
 
-    if data['Cumulative Stats']['Laboratory Normal Service Starters'] == 0: # avoiding division by zero error
+    if data['Cumulative Stats']['Laboratory Normal Service Starters'] == 0:  # avoiding division by zero error
         Wq_Laboratory_Normal = 0
     else:
-        Wq_Laboratory_Normal = data['Cumulative Stats']['Laboratory Normal Queue Waiting Time'] / data['Cumulative Stats'][
-            'Laboratory Normal Service Starters']
+        Wq_Laboratory_Normal = data['Cumulative Stats']['Laboratory Normal Queue Waiting Time'] / \
+                               data['Cumulative Stats'][
+                                   'Laboratory Normal Service Starters']
     data['Results']['Wq_Laboratory_Normal'] = Wq_Laboratory_Normal
 
-    if data['Cumulative Stats']['Laboratory Urgent Service Starters'] == 0: # avoiding division by zero error
+    if data['Cumulative Stats']['Laboratory Urgent Service Starters'] == 0:  # avoiding division by zero error
         Wq_Laboratory_Urgent = 0
     else:
-        Wq_Laboratory_Urgent = data['Cumulative Stats']['Laboratory Urgent Queue Waiting Time'] / data['Cumulative Stats'][
-            'Laboratory Urgent Service Starters']
+        Wq_Laboratory_Urgent = data['Cumulative Stats']['Laboratory Urgent Queue Waiting Time'] / \
+                               data['Cumulative Stats'][
+                                   'Laboratory Urgent Service Starters']
     data['Results']['Wq_Laboratory_Urgent'] = Wq_Laboratory_Urgent
 
-    if data['Cumulative Stats']['Operation Normal Service Starters'] == 0: # avoiding division by zero error
+    if data['Cumulative Stats']['Operation Normal Service Starters'] == 0:  # avoiding division by zero error
         Wq_Operation_Normal = 0
     else:
-        Wq_Operation_Normal = data['Cumulative Stats']['Operation Normal Queue Waiting Time'] / data['Cumulative Stats'][
-            'Operation Normal Service Starters']
+        Wq_Operation_Normal = data['Cumulative Stats']['Operation Normal Queue Waiting Time'] / \
+                              data['Cumulative Stats'][
+                                  'Operation Normal Service Starters']
     data['Results']['Wq_Operation_Normal'] = Wq_Operation_Normal
 
-    if data['Cumulative Stats']['Operation Urgent Service Starters'] == 0: # avoiding division by zero error
+    if data['Cumulative Stats']['Operation Urgent Service Starters'] == 0:  # avoiding division by zero error
         Wq_Operation_Urgent = 0
     else:
-        Wq_Operation_Urgent = data['Cumulative Stats']['Operation Urgent Queue Waiting Time'] / data['Cumulative Stats'][
-            'Operation Urgent Service Starters']
+        Wq_Operation_Urgent = data['Cumulative Stats']['Operation Urgent Queue Waiting Time'] / \
+                              data['Cumulative Stats'][
+                                  'Operation Urgent Service Starters']
     data['Results']['Wq_Operation_Urgent'] = Wq_Operation_Urgent
 
-    if data['Cumulative Stats']['General Ward Service Starters'] == 0: # avoiding division by zero error
+    if data['Cumulative Stats']['General Ward Service Starters'] == 0:  # avoiding division by zero error
         Wq_General_Ward = 0
     else:
         Wq_General_Ward = data['Cumulative Stats']['General Ward Queue Waiting Time'] / data['Cumulative Stats'][
             'General Ward Service Starters']
     data['Results']['Wq_General_Ward'] = Wq_General_Ward
 
-    if data['Cumulative Stats']['ICU Service Starters'] == 0: # avoiding division by zero error
+    if data['Cumulative Stats']['ICU Service Starters'] == 0:  # avoiding division by zero error
         Wq_ICU = 0
     else:
         Wq_ICU = data['Cumulative Stats']['ICU Queue Waiting Time'] / data['Cumulative Stats']['ICU Service Starters']
     data['Results']['Wq_ICU'] = Wq_ICU
 
-    if data['Cumulative Stats']['CCU Service Starters'] == 0: # avoiding division by zero error
+    if data['Cumulative Stats']['CCU Service Starters'] == 0:  # avoiding division by zero error
         Wq_CCU = 0
     else:
         Wq_CCU = data['Cumulative Stats']['CCU Queue Waiting Time'] / data['Cumulative Stats']['CCU Service Starters']
@@ -1879,15 +1877,18 @@ def simulation(simulation_time, param, excel_creation=False):
 
     # Warm Period Criteria
     # Lq
-    Lq_Preoperative_Warm_Period = data['Cumulative Stats']['Area Under Preoperative Queue Length Curve(warm period)'] / (simulation_time - warm_up_time)
+    Lq_Preoperative_Warm_Period = data['Cumulative Stats'][
+                                      'Area Under Preoperative Queue Length Curve(warm period)'] / (
+                                              simulation_time - warm_up_time)
     data['Results']['Lq_Preoperative_Warm_Period'] = Lq_Preoperative_Warm_Period
 
     # Wq
-    if data['Cumulative Stats']['Preoperative Service Starters(warm period)'] == 0: # avoiding division by zero error
+    if data['Cumulative Stats']['Preoperative Service Starters(warm period)'] == 0:  # avoiding division by zero error
         Wq_Preoperative_Warm_Period = 0
     else:
-        Wq_Preoperative_Warm_Period = data['Cumulative Stats']['Preoperative Queue Waiting Time(warm period)'] / data['Cumulative Stats'][
-            'Preoperative Service Starters(warm period)']
+        Wq_Preoperative_Warm_Period = data['Cumulative Stats']['Preoperative Queue Waiting Time(warm period)'] / \
+                                      data['Cumulative Stats'][
+                                          'Preoperative Service Starters(warm period)']
     data['Results']['Wq_Preoperative_Warm_Period'] = Wq_Preoperative_Warm_Period
 
     # Finished Patients
